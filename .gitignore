@@ -1,0 +1,40 @@
+# Gradle
+.gradle/
+build/
+**/build/
+*.hprof
+local.properties
+
+# Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin
+*.class
+*.kotlin_module
+
+# iOS / Xcode
+iosBancarito/.build/
+iosBancarito/build/
+iosBancarito/DerivedData/
+iosBancarito/*.xcworkspace/xcuserdata/
+iosBancarito/Pods/
+**/*.xcbuilddata/
+
+# Keys и секреты — никогда не коммитим
+secrets.properties
+*.keystore
+*.jks
+google-services.json
+
+# MacOS
+.DS_Store
+**/.DS_Store
+
+# SQLDelight
+**/sqldelight/
