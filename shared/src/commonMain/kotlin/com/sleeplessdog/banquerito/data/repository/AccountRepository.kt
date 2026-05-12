@@ -73,6 +73,10 @@ class AccountRepository(
             id = id
         )
     }
+
+    suspend fun updateAccountBank(id: String, bankName: String) {
+        db.banqueritoDBQueries.updateAccountBank(bank_name = bankName, id = id)
+    }
 }
 
 private fun com.sleeplessdog.banquerito.db.Account.toAccount() = Account(

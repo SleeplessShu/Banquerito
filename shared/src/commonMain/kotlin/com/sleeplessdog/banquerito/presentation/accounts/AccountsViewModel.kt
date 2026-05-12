@@ -111,4 +111,16 @@ class AccountsViewModel(
             repository.updateAccountName(accountId, newName)
         }
     }
+
+    fun updateAccountBank(accountId: String, bankName: String) {
+        viewModelScope.launch {
+            repository.updateAccountBank(accountId, bankName)
+        }
+    }
+
+    fun updateSimReminder(accountId: String, interval: SimReminderInterval) {
+        viewModelScope.launch {
+            repository.updateSimReminder(accountId, interval, null)
+        }
+    }
 }
