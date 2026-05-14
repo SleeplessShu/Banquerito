@@ -30,7 +30,7 @@ data class AccountDetailUiState(
 )
 
 class AccountsViewModel(
-    private val repository: AccountRepository
+    private val repository: AccountRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountsUiState())
@@ -54,10 +54,20 @@ class AccountsViewModel(
 
     fun loadAccountDetail(accountId: String) {
         viewModelScope.launch {
-            val account = uiState.value.accounts.find { it.id == accountId }
-            _detailUiState.update { it.copy(account = account, isLoading = true) }
-            repository.getTransactionsByAccount(accountId).collect { transactions ->
-                _detailUiState.update { it.copy(transactions = transactions, isLoading = false) }
+            _detailUiState.update { it.copy(isLoading = true) }
+            launch {
+                repository.getAccountById(accountId).collect { account ->
+                    _detailUiState.update { it.copy(account = account) }
+                }
+            }
+            launch {
+                repository.getTransactionsByAccount(accountId).collect { transactions ->
+                    _detailUiState.update {
+                        it.copy(
+                            transactions = transactions, isLoading = false
+                        )
+                    }
+                }
             }
         }
     }
@@ -92,7 +102,12 @@ class AccountsViewModel(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun addAccount(name: String, bankName: String, currency: Currency, simReminderInterval: SimReminderInterval = SimReminderInterval.NEVER) {
+    fun addAccount(
+        name: String,
+        bankName: String,
+        currency: Currency,
+        simReminderInterval: SimReminderInterval = SimReminderInterval.NEVER,
+    ) {
         viewModelScope.launch {
             val account = Account(
                 id = Uuid.random().toString(),
@@ -121,6 +136,70 @@ class AccountsViewModel(
     fun updateSimReminder(accountId: String, interval: SimReminderInterval) {
         viewModelScope.launch {
             repository.updateSimReminder(accountId, interval, null)
+        }
+    }
+
+    fun updateTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.updateTransaction(transaction)
+        }
+    }
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.deleteTransaction(transaction.id)
+            val account = detailUiState.value.account ?: return@launch
+            val delta =
+                if (transaction.type == TransactionType.INCOME) -transaction.amount else transaction.amount
+            repository.updateAccountBalance(account.id, account.balance + delta)
+            if ((transaction.type == TransactionType.TRANSFER_EXPENSE || transaction.type == TransactionType.TRANSFER_INCOME) && transaction.toAccountId != null) {
+                val toAccount = uiState.value.accounts.find { it.id == transaction.toAccountId }
+                if (toAccount != null) {
+                    repository.updateAccountBalance(
+                        toAccount.id, toAccount.balance - transaction.amount
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun addTransfer(
+        fromAccountId: String,
+        toAccountId: String,
+        amount: Double,
+        comment: String,
+        date: LocalDate,
+    ) {
+        viewModelScope.launch {
+
+            val outTransaction = Transaction(
+                id = Uuid.random().toString(),
+                accountId = fromAccountId,
+                type = TransactionType.TRANSFER_EXPENSE,
+                amount = amount,
+                comment = comment,
+                date = date,
+                toAccountId = toAccountId
+            )
+
+            val inTransaction = Transaction(
+                id = Uuid.random().toString(),
+                accountId = toAccountId,
+                type = TransactionType.TRANSFER_INCOME,
+                amount = amount,
+                comment = comment,
+                date = date,
+                toAccountId = fromAccountId
+            )
+            repository.insertTransaction(outTransaction)
+            repository.insertTransaction(inTransaction)
+
+            val fromAccount =
+                uiState.value.accounts.find { it.id == fromAccountId } ?: return@launch
+            val toAccount = uiState.value.accounts.find { it.id == toAccountId } ?: return@launch
+            repository.updateAccountBalance(fromAccountId, fromAccount.balance - amount)
+            repository.updateAccountBalance(toAccountId, toAccount.balance + amount)
         }
     }
 }

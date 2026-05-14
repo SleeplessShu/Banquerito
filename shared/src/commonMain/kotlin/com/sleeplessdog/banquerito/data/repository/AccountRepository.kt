@@ -2,6 +2,8 @@ package com.sleeplessdog.banquerito.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
@@ -58,7 +60,8 @@ class AccountRepository(
             type = transaction.type.name,
             amount = transaction.amount,
             comment = transaction.comment,
-            date = transaction.date.toString()
+            date = transaction.date.toString(),
+            to_account_id = transaction.toAccountId
         )
     }
 
@@ -76,6 +79,23 @@ class AccountRepository(
 
     suspend fun updateAccountBank(id: String, bankName: String) {
         db.banqueritoDBQueries.updateAccountBank(bank_name = bankName, id = id)
+    }
+
+    fun getAccountById(id: String): Flow<Account?> =
+        db.banqueritoDBQueries.selectAccountById(id)
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .map { it?.toAccount() }
+
+    suspend fun updateTransaction(transaction: Transaction) {
+        db.banqueritoDBQueries.updateTransaction(
+            type = transaction.type.name,
+            amount = transaction.amount,
+            comment = transaction.comment,
+            date = transaction.date.toString(),
+            to_account_id = transaction.toAccountId,
+            id = transaction.id
+        )
     }
 }
 
@@ -95,5 +115,6 @@ private fun com.sleeplessdog.banquerito.db.Transaction_.toTransaction() = Transa
     type = TransactionType.valueOf(type),
     amount = amount,
     comment = comment,
-    date = LocalDate.parse(date)
+    date = LocalDate.parse(date),
+    toAccountId = to_account_id
 )
