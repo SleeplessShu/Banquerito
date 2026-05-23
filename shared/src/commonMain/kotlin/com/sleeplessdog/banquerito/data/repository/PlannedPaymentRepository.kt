@@ -1,0 +1,115 @@
+package com.sleeplessdog.banquerito.data.repository
+
+import kotlinx.coroutines.flow.map
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.sleeplessdog.banquerito.db.BanqueritoDB
+import com.sleeplessdog.banquerito.domain.model.AutonomoRegime
+import com.sleeplessdog.banquerito.domain.model.Currency
+import com.sleeplessdog.banquerito.domain.model.EmploymentStatus
+import com.sleeplessdog.banquerito.domain.model.PlannedPayment
+import com.sleeplessdog.banquerito.domain.model.Recurrence
+import com.sleeplessdog.banquerito.domain.model.UserProfile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+
+class PlannedPaymentRepository(private val db: BanqueritoDB) {
+
+    fun getAllPlannedPayments(): Flow<List<PlannedPayment>> =
+        db.banqueritoDBQueries.selectAllPlannedPayments()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { list -> list.map { it.toPlannedPayment() } }
+
+    fun getArchivedPlannedPayments(): Flow<List<PlannedPayment>> =
+        db.banqueritoDBQueries.selectArchivedPlannedPayments()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { list -> list.map { it.toPlannedPayment() } }
+
+    suspend fun insertPlannedPayment(payment: PlannedPayment) {
+        db.banqueritoDBQueries.insertPlannedPayment(
+            id = payment.id,
+            name = payment.name,
+            amount = payment.amount,
+            currency_code = payment.currency.code,
+            account_id = payment.accountId,
+            recurrence = payment.recurrence.name,
+            day_of_month = payment.dayOfMonth.toLong(),
+            next_date = payment.nextDate.toString(),
+            remind_days_before = payment.remindDaysBefore.toLong(),
+            is_active = if (payment.isActive) 1L else 0L,
+            is_archived = if (payment.isArchived) 1L else 0L,
+            archived_at = payment.archivedAt?.toString()
+        )
+    }
+
+    suspend fun updatePlannedPayment(payment: PlannedPayment) {
+        db.banqueritoDBQueries.updatePlannedPayment(
+            name = payment.name,
+            amount = payment.amount,
+            currency_code = payment.currency.code,
+            account_id = payment.accountId,
+            recurrence = payment.recurrence.name,
+            day_of_month = payment.dayOfMonth.toLong(),
+            next_date = payment.nextDate.toString(),
+            remind_days_before = payment.remindDaysBefore.toLong(),
+            is_active = if (payment.isActive) 1L else 0L,
+            id = payment.id
+        )
+    }
+
+    suspend fun archivePlannedPayment(id: String, archivedAt: Instant) {
+        db.banqueritoDBQueries.archivePlannedPayment(
+            archived_at = archivedAt.toString(),
+            id = id
+        )
+    }
+
+    suspend fun deletePlannedPayment(id: String) {
+        db.banqueritoDBQueries.deletePlannedPayment(id)
+    }
+
+    fun getUserProfile(): Flow<UserProfile?> =
+        db.banqueritoDBQueries.selectUserProfile()
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .map { it?.toUserProfile() }
+
+    suspend fun upsertUserProfile(profile: UserProfile) {
+        db.banqueritoDBQueries.upsertUserProfile(
+            citizenship = profile.citizenship,
+            tax_residency = profile.taxResidency,
+            employment_status = profile.employmentStatus.name,
+            autonomo_regime = profile.autonomoRegime.name,
+            default_currency = profile.defaultCurrency.code
+        )
+    }
+}
+
+private fun com.sleeplessdog.banquerito.db.PlannedPayment.toPlannedPayment() = PlannedPayment(
+    id = id,
+    name = name,
+    amount = amount,
+    currency = Currency.entries.find { it.code == currency_code } ?: Currency.EUR,
+    accountId = account_id,
+    recurrence = Recurrence.valueOf(recurrence),
+    dayOfMonth = day_of_month.toInt(),
+    nextDate = LocalDate.parse(next_date),
+    remindDaysBefore = remind_days_before.toInt(),
+    isActive = is_active == 1L,
+    isArchived = is_archived == 1L,
+    archivedAt = archived_at?.let { Instant.parse(it) }
+)
+
+private fun com.sleeplessdog.banquerito.db.UserProfile.toUserProfile() = UserProfile(
+    citizenship = citizenship,
+    taxResidency = tax_residency,
+    employmentStatus = EmploymentStatus.valueOf(employment_status),
+    autonomoRegime = AutonomoRegime.valueOf(autonomo_regime),
+    defaultCurrency = Currency.entries.find { it.code == default_currency } ?: Currency.EUR
+)

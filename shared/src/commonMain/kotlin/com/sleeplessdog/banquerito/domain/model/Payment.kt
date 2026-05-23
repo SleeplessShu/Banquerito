@@ -1,5 +1,6 @@
 package com.sleeplessdog.banquerito.domain.model
 
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 data class PlannedPayment(
@@ -13,6 +14,8 @@ data class PlannedPayment(
     val nextDate: LocalDate,
     val remindDaysBefore: Int,
     val isActive: Boolean,
+    val isArchived: Boolean = false,
+    val archivedAt: Instant? = null,
 )
 
 enum class Recurrence {
