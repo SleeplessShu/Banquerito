@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.sleeplessdog.banquerito.ui.screens.PlaceholderScreen
 import com.sleeplessdog.banquerito.ui.screens.accounts.AccountDetailScreen
 import com.sleeplessdog.banquerito.ui.screens.accounts.AccountsScreen
+import com.sleeplessdog.banquerito.ui.screens.planning.PlanningScreen
 
 sealed class Screen(val route: String) {
     data object Accounts : Screen("accounts")
@@ -19,6 +20,7 @@ sealed class Screen(val route: String) {
     data object Operations : Screen("operations")
     data object Taxes : Screen("taxes")
     data object Consultant : Screen("consultant")
+    data object Settings : Screen("settings")
 }
 
 val bottomNavRoutes = listOf("accounts", "operations", "taxes", "consultant")
@@ -50,13 +52,20 @@ fun AppNavigation() {
                 )
             }
             composable(Screen.Operations.route) {
-                PlaceholderScreen("Операции")
+                PlanningScreen(
+                    onSettingsClick = {
+                        navController.navigate(Screen.Settings.route)
+                    }
+                )
             }
             composable(Screen.Taxes.route) {
                 PlaceholderScreen("Налоги")
             }
             composable(Screen.Consultant.route) {
                 PlaceholderScreen("Консультант")
+            }
+            composable(Screen.Settings.route) {
+                PlaceholderScreen("Настройки")
             }
         }
     }

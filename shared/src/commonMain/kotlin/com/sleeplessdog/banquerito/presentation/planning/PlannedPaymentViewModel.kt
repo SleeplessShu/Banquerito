@@ -1,9 +1,10 @@
-package com.sleeplessdog.banquerito.presentation.planing
+package com.sleeplessdog.banquerito.presentation.planning
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sleeplessdog.banquerito.data.repository.PlannedPaymentRepository
 import com.sleeplessdog.banquerito.domain.model.Currency
+import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
 import com.sleeplessdog.banquerito.domain.model.PlanningUiState
 import com.sleeplessdog.banquerito.domain.model.Recurrence
@@ -27,8 +28,26 @@ class PlannedPaymentViewModel(
 
     init {
         loadPayments()
+        loadIncomes()
         loadArchived()
+        loadArchivedIncomes()
         loadUserProfile()
+    }
+
+    private fun loadArchivedIncomes() {
+        viewModelScope.launch {
+            repository.getArchivedPlannedIncomes().collect { archived ->
+                _uiState.update { it.copy(archivedIncomes = archived) }
+            }
+        }
+    }
+
+    private fun loadIncomes() {
+        viewModelScope.launch {
+            repository.getAllPlannedIncomes().collect { incomes ->
+                _uiState.update { it.copy(incomes = incomes) }
+            }
+        }
     }
 
     private fun loadPayments() {
@@ -97,6 +116,18 @@ class PlannedPaymentViewModel(
         }
     }
 
+    fun archiveIncome(income: PlannedIncome) {
+        viewModelScope.launch {
+            repository.archivePlannedIncome(income.id, Clock.System.now())
+        }
+    }
+
+    fun deleteIncome(income: PlannedIncome) {
+        viewModelScope.launch {
+            repository.deletePlannedIncome(income.id)
+        }
+    }
+
     fun deletePayment(payment: PlannedPayment) {
         viewModelScope.launch {
             repository.deletePlannedPayment(payment.id)
@@ -110,6 +141,35 @@ class PlannedPaymentViewModel(
     fun saveUserProfile(profile: UserProfile) {
         viewModelScope.launch {
             repository.upsertUserProfile(profile)
+        }
+    }
+
+    fun updateIncome(income: PlannedIncome) {
+        viewModelScope.launch {
+            repository.updatePlannedIncome(income)
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun addIncome(
+        comment: String,
+        amount: Double,
+        currency: Currency,
+        accountId: String,
+        recurrence: Recurrence,
+        nextDate: LocalDate,
+    ) {
+        viewModelScope.launch {
+            val income = PlannedIncome(
+                id = Uuid.random().toString(),
+                comment = comment,
+                amount = amount,
+                currency = currency,
+                accountId = accountId,
+                recurrence = recurrence,
+                nextDate = nextDate,
+            )
+            repository.insertPlannedIncome(income)
         }
     }
 }

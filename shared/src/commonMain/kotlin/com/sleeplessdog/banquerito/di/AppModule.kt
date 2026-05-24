@@ -5,7 +5,7 @@ import com.sleeplessdog.banquerito.data.repository.AccountRepository
 import com.sleeplessdog.banquerito.data.repository.PlannedPaymentRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
-import com.sleeplessdog.banquerito.presentation.planing.PlannedPaymentViewModel
+import com.sleeplessdog.banquerito.presentation.planning.PlannedPaymentViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 

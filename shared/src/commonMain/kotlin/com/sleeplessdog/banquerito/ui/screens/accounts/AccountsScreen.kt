@@ -121,53 +121,52 @@ fun TotalBalanceHeader(
     var showCurrencyWheel by remember { mutableStateOf(false) }
 
     Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.fillMaxWidth()
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(vertical = 60.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = "Общий баланс",
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-        Column(
-            horizontalAlignment = Alignment.End, modifier = Modifier.padding(vertical = 60.dp)
-        ) {
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = formatAmount(total, selectedCurrency),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 20.dp)
-                    .clickable { showCurrencyWheel = true })
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (showCurrencyWheel) {
-                var tempCurrency by remember { mutableStateOf(selectedCurrency) }
-                AlertDialog(
-                    onDismissRequest = { showCurrencyWheel = false },
-                    title = { Text("Выберите валюту") },
-                    text = {
-                        CurrencyWheelPicker(
-                            selected = tempCurrency, onSelect = { tempCurrency = it })
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            onCurrencySelect(tempCurrency)
-                            showCurrencyWheel = false
-                        }) {
-                            Text("Выбрать")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showCurrencyWheel = false }) {
-                            Text("Отмена")
-                        }
-                    })
-            }
+                modifier = Modifier.clickable { showCurrencyWheel = true }
+            )
         }
+    }
+
+    if (showCurrencyWheel) {
+        var tempCurrency by remember { mutableStateOf(selectedCurrency) }
+        AlertDialog(
+            onDismissRequest = { showCurrencyWheel = false },
+            title = { Text("Выберите валюту") },
+            text = {
+                CurrencyWheelPicker(
+                    selected = tempCurrency,
+                    onSelect = { tempCurrency = it }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onCurrencySelect(tempCurrency)
+                    showCurrencyWheel = false
+                }) { Text("Выбрать") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCurrencyWheel = false }) { Text("Отмена") }
+            }
+        )
     }
 }
 

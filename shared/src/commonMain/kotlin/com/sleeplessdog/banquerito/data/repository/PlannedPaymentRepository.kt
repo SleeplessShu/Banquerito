@@ -8,6 +8,7 @@ import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.AutonomoRegime
 import com.sleeplessdog.banquerito.domain.model.Currency
 import com.sleeplessdog.banquerito.domain.model.EmploymentStatus
+import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
 import com.sleeplessdog.banquerito.domain.model.Recurrence
 import com.sleeplessdog.banquerito.domain.model.UserProfile
@@ -89,7 +90,68 @@ class PlannedPaymentRepository(private val db: BanqueritoDB) {
             default_currency = profile.defaultCurrency.code
         )
     }
+
+    fun getAllPlannedIncomes(): Flow<List<PlannedIncome>> =
+        db.banqueritoDBQueries.selectAllPlannedIncomes()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { list -> list.map { it.toPlannedIncome() } }
+
+    fun getArchivedPlannedIncomes(): Flow<List<PlannedIncome>> =
+        db.banqueritoDBQueries.selectArchivedPlannedIncomes()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { list -> list.map { it.toPlannedIncome() } }
+
+    suspend fun insertPlannedIncome(income: PlannedIncome) {
+        db.banqueritoDBQueries.insertPlannedIncome(
+            id = income.id,
+            comment = income.comment,
+            amount = income.amount,
+            currency_code = income.currency.code,
+            account_id = income.accountId,
+            recurrence = income.recurrence.name,
+            next_date = income.nextDate.toString(),
+            is_archived = if (income.isArchived) 1L else 0L,
+            archived_at = income.archivedAt?.toString()
+        )
+    }
+
+    suspend fun updatePlannedIncome(income: PlannedIncome) {
+        db.banqueritoDBQueries.updatePlannedIncome(
+            comment = income.comment,
+            amount = income.amount,
+            currency_code = income.currency.code,
+            account_id = income.accountId,
+            recurrence = income.recurrence.name,
+            next_date = income.nextDate.toString(),
+            id = income.id
+        )
+    }
+
+    suspend fun archivePlannedIncome(id: String, archivedAt: Instant) {
+        db.banqueritoDBQueries.archivePlannedIncome(
+            archived_at = archivedAt.toString(),
+            id = id
+        )
+    }
+
+    suspend fun deletePlannedIncome(id: String) {
+        db.banqueritoDBQueries.deletePlannedIncome(id)
+    }
 }
+
+private fun com.sleeplessdog.banquerito.db.PlannedIncome.toPlannedIncome() = PlannedIncome(
+    id = id,
+    comment = comment,
+    amount = amount,
+    currency = Currency.entries.find { it.code == currency_code } ?: Currency.EUR,
+    accountId = account_id,
+    recurrence = Recurrence.valueOf(recurrence),
+    nextDate = LocalDate.parse(next_date),
+    isArchived = is_archived == 1L,
+    archivedAt = archived_at?.let { Instant.parse(it) }
+)
 
 private fun com.sleeplessdog.banquerito.db.PlannedPayment.toPlannedPayment() = PlannedPayment(
     id = id,
