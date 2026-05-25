@@ -1,21 +1,23 @@
 package com.sleeplessdog.banquerito.domain.model
 
 data class UserProfile(
-    val citizenship: String = "",
-    val taxResidency: String = "",
-    val employmentStatus: EmploymentStatus = EmploymentStatus.EMPLOYEE,
-    val autonomoRegime: AutonomoRegime = AutonomoRegime.GENERAL,
+    val name: String = "",
+    val countryOfResidence: CountryOfResidence = CountryOfResidence.SPAIN,
+    val citizenship: Citizenship = Citizenship.OTHER,
     val defaultCurrency: Currency = Currency.EUR,
 )
 
-enum class EmploymentStatus(val label: String) {
-    EMPLOYEE("Наёмный сотрудник"),
-    AUTONOMO("Autónomo"),
-    NON_RESIDENT("Нерезидент"),
+enum class CountryOfResidence(val label: String) {
+    SPAIN("Испания"),
+    SERBIA("Сербия"),
+    ARMENIA("Армения"),
     OTHER("Другое"),
 }
 
-enum class AutonomoRegime(val label: String) {
-    TARIFA_PLANA("Tarifa plana"),
-    GENERAL("Régimen general"),
+enum class Citizenship(val label: String) {
+    UKRAINE("Украина"),
+    BELARUS("Беларусь"),
+    RUSSIA("Россия"),
+    OTHER("Другое"),
 }
+

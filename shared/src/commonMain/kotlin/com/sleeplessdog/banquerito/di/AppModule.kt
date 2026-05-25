@@ -6,6 +6,7 @@ import com.sleeplessdog.banquerito.data.repository.PlannedPaymentRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
 import com.sleeplessdog.banquerito.presentation.planning.PlannedPaymentViewModel
+import com.sleeplessdog.banquerito.presentation.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -15,4 +16,5 @@ val appModule = module {
     single { PlannedPaymentRepository(get()) }
     viewModelOf(::AccountsViewModel)
     viewModelOf(::PlannedPaymentViewModel)
+    viewModelOf(::SettingsViewModel)
 }

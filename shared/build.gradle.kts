@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -55,6 +56,8 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
 
             implementation(libs.navigation.compose)
+
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             implementation(libs.sqldelight.android)

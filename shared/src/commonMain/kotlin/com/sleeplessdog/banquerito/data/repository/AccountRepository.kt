@@ -14,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 class AccountRepository(
@@ -61,7 +63,8 @@ class AccountRepository(
             amount = transaction.amount,
             comment = transaction.comment,
             date = transaction.date.toString(),
-            to_account_id = transaction.toAccountId
+            to_account_id = transaction.toAccountId,
+            created_at = transaction.createdAt.toString()
         )
     }
 
@@ -116,5 +119,6 @@ private fun com.sleeplessdog.banquerito.db.Transaction_.toTransaction() = Transa
     amount = amount,
     comment = comment,
     date = LocalDate.parse(date),
-    toAccountId = to_account_id
+    toAccountId = to_account_id,
+    createdAt = if (created_at.isNotEmpty()) Instant.parse(created_at) else Clock.System.now()
 )

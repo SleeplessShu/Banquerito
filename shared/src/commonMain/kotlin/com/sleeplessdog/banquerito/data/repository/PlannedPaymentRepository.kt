@@ -6,7 +6,10 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.AutonomoRegime
+import com.sleeplessdog.banquerito.domain.model.Citizenship
+import com.sleeplessdog.banquerito.domain.model.CountryOfResidence
 import com.sleeplessdog.banquerito.domain.model.Currency
+import com.sleeplessdog.banquerito.domain.model.DeclarationType
 import com.sleeplessdog.banquerito.domain.model.EmploymentStatus
 import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
@@ -83,10 +86,9 @@ class PlannedPaymentRepository(private val db: BanqueritoDB) {
 
     suspend fun upsertUserProfile(profile: UserProfile) {
         db.banqueritoDBQueries.upsertUserProfile(
-            citizenship = profile.citizenship,
-            tax_residency = profile.taxResidency,
-            employment_status = profile.employmentStatus.name,
-            autonomo_regime = profile.autonomoRegime.name,
+            name = profile.name,
+            country_of_residence = profile.countryOfResidence.name,
+            citizenship = profile.citizenship.name,
             default_currency = profile.defaultCurrency.code
         )
     }
@@ -169,9 +171,9 @@ private fun com.sleeplessdog.banquerito.db.PlannedPayment.toPlannedPayment() = P
 )
 
 private fun com.sleeplessdog.banquerito.db.UserProfile.toUserProfile() = UserProfile(
-    citizenship = citizenship,
-    taxResidency = tax_residency,
-    employmentStatus = EmploymentStatus.valueOf(employment_status),
-    autonomoRegime = AutonomoRegime.valueOf(autonomo_regime),
+    name = name,
+    countryOfResidence = CountryOfResidence.valueOf(country_of_residence),
+    citizenship = Citizenship.valueOf(citizenship),
     defaultCurrency = Currency.entries.find { it.code == default_currency } ?: Currency.EUR
 )
+
