@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.Banquerito.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#444f8e</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Banquerito</item>
+    </style>
+</resources>

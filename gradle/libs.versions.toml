@@ -46,6 +46,8 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
+splash = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

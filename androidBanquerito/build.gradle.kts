@@ -51,4 +51,5 @@ dependencies {
     implementation(libs.compose.foundation)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.navigation.compose)
+    implementation(libs.splash)
 }

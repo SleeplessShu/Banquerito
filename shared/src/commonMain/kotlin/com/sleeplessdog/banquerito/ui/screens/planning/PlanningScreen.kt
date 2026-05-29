@@ -109,7 +109,6 @@ fun PlanningScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
         ) {
             item {
                 PlanningHeader(onSettingsClick = onSettingsClick)
@@ -446,7 +445,7 @@ fun PlanningHeader(
         ) {
             Text(
                     "Планирование",
-                    fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             IconButton(onClick = onSettingsClick) {

@@ -6,11 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sleeplessdog.banquerito.ui.screens.PlaceholderScreen
 import com.sleeplessdog.banquerito.ui.screens.accounts.AccountDetailScreen
 import com.sleeplessdog.banquerito.ui.screens.accounts.AccountsScreen
 import com.sleeplessdog.banquerito.ui.screens.planning.PlanningScreen
+import com.sleeplessdog.banquerito.ui.screens.settings.SettingsScreen
+import androidx.compose.runtime.getValue
 
 sealed class Screen(val route: String) {
     data object Accounts : Screen("accounts")
@@ -28,9 +31,15 @@ val bottomNavRoutes = listOf("accounts", "operations", "taxes", "consultant")
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val showBottomBar = currentRoute != Screen.Settings.route &&
+            currentRoute != Screen.AccountDetail.route
 
     Scaffold(
-        bottomBar = { BottomNav(navController) }
+        bottomBar = {
+            if (showBottomBar) BottomNav(navController)
+        }
     ) { padding ->
         NavHost(
             navController = navController,
@@ -66,6 +75,9 @@ fun AppNavigation() {
             }
             composable(Screen.Settings.route) {
                 PlaceholderScreen("Настройки")
+            }
+            composable(Screen.Settings.route) {
+                SettingsScreen(onBack = { navController.popBackStack() })
             }
         }
     }

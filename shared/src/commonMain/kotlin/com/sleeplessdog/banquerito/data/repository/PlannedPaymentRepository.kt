@@ -5,12 +5,9 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.sleeplessdog.banquerito.db.BanqueritoDB
-import com.sleeplessdog.banquerito.domain.model.AutonomoRegime
 import com.sleeplessdog.banquerito.domain.model.Citizenship
 import com.sleeplessdog.banquerito.domain.model.CountryOfResidence
 import com.sleeplessdog.banquerito.domain.model.Currency
-import com.sleeplessdog.banquerito.domain.model.DeclarationType
-import com.sleeplessdog.banquerito.domain.model.EmploymentStatus
 import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
 import com.sleeplessdog.banquerito.domain.model.Recurrence

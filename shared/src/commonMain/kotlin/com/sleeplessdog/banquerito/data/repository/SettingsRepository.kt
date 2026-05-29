@@ -6,8 +6,8 @@ import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Citizenship
 import com.sleeplessdog.banquerito.domain.model.CountryOfResidence
 import com.sleeplessdog.banquerito.domain.model.Currency
-import com.sleeplessdog.banquerito.domain.model.EmploymentStatus
 import com.sleeplessdog.banquerito.domain.model.TaxProfile
+import com.sleeplessdog.banquerito.domain.model.TaxResidency
 import com.sleeplessdog.banquerito.domain.model.UserProfile
 import com.sleeplessdog.banquerito.domain.model.toCountryTaxSettings
 import com.sleeplessdog.banquerito.domain.model.toJson
@@ -41,11 +41,10 @@ class SettingsRepository(private val db: BanqueritoDB) {
 
     suspend fun upsertTaxProfile(profile: TaxProfile) {
         db.banqueritoDBQueries.upsertTaxProfile(
-            tax_residency = profile.taxResidency,
-            employment_status = profile.employmentStatus.name,
+            tax_residency = profile.taxResidency.name,
             country_tax_settings_json = profile.countryTaxSettings.toJson(),
             remind_quarterly_days = profile.remindQuarterlyDays.toLong(),
-            remind_renta_days = profile.remindRentaDays.toLong()
+            remind_renta_days = profile.remindRentaDays.toLong(),
         )
     }
 }
@@ -58,8 +57,7 @@ private fun com.sleeplessdog.banquerito.db.UserProfile.toUserProfile() = UserPro
 )
 
 private fun com.sleeplessdog.banquerito.db.TaxProfile.toTaxProfile() = TaxProfile(
-    taxResidency = tax_residency,
-    employmentStatus = EmploymentStatus.valueOf(employment_status),
+    taxResidency = TaxResidency.valueOf(tax_residency),
     countryTaxSettings = country_tax_settings_json.toCountryTaxSettings(),
     remindQuarterlyDays = remind_quarterly_days.toInt(),
     remindRentaDays = remind_renta_days.toInt()
