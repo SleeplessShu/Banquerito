@@ -1,7 +1,9 @@
 package com.sleeplessdog.banquerito.di
 
 import com.sleeplessdog.banquerito.data.DatabaseDriverFactory
+import com.sleeplessdog.banquerito.data.remote.ExchangeRateApi
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
+import com.sleeplessdog.banquerito.data.repository.ExchangeRateRepository
 import com.sleeplessdog.banquerito.data.repository.PlannedPaymentRepository
 import com.sleeplessdog.banquerito.data.repository.SettingsRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
@@ -16,6 +18,8 @@ val appModule = module {
     single { AccountRepository(get()) }
     single { PlannedPaymentRepository(get()) }
     single { SettingsRepository(get()) }
+    single { ExchangeRateApi() }
+    single { ExchangeRateRepository(get()) }
     viewModelOf(::AccountsViewModel)
     viewModelOf(::PlannedPaymentViewModel)
     viewModelOf(::SettingsViewModel)

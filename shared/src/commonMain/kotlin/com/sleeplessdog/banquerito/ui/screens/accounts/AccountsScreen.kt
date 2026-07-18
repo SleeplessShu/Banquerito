@@ -78,11 +78,15 @@ fun AccountsScreen(
                 TotalBalanceHeader(
                     accounts = uiState.accounts,
                     selectedCurrency = uiState.selectedCurrency,
+                    rates = uiState.exchangeRates,
                     onCurrencySelect = { viewModel.setDisplayCurrency(it) })
             }
 
             item {
-                ExchangeRatesRow(baseCurrency = uiState.selectedCurrency)
+                ExchangeRatesRow(
+                    baseCurrency = uiState.selectedCurrency,
+                    rates = uiState.exchangeRates
+                )
             }
 
             item {
@@ -97,7 +101,9 @@ fun AccountsScreen(
                 AccountCard(
                     account = account,
                     displayCurrency = uiState.selectedCurrency,
-                    onClick = { onAccountClick(account.id) })
+                    rates = uiState.exchangeRates,
+                    onClick = { onAccountClick(account.id) }
+                )
             }
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
@@ -115,9 +121,12 @@ fun AccountsScreen(
 fun TotalBalanceHeader(
     accounts: List<Account>,
     selectedCurrency: Currency,
+    rates: Map<String, Double>,
     onCurrencySelect: (Currency) -> Unit,
 ) {
-    val total = accounts.sumOf { convertCurrency(it.balance, it.currency, selectedCurrency) }
+    val total = accounts.sumOf {
+        convertCurrency(it.balance, it.currency, selectedCurrency, rates)
+    }
     var showCurrencyWheel by remember { mutableStateOf(false) }
 
     Surface(
@@ -174,9 +183,10 @@ fun TotalBalanceHeader(
 fun AccountCard(
     account: Account,
     displayCurrency: Currency,
+    rates: Map<String, Double>,
     onClick: () -> Unit,
 ) {
-    val convertedBalance = convertCurrency(account.balance, account.currency, displayCurrency)
+    val convertedBalance = convertCurrency(account.balance, account.currency, displayCurrency, rates)
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp)
@@ -410,56 +420,39 @@ fun AddAccountSheet(
 }
 
 @Composable
-fun ExchangeRatesRow(baseCurrency: Currency) {
-    val rates = remember(baseCurrency) {
-        Currency.entries.filter { it != baseCurrency }.map { currency ->
-            val rate = convertCurrency(1.0, baseCurrency, currency)
-            Triple(baseCurrency, currency, rate)
-        }
-    }
-
+fun ExchangeRatesRow(
+    baseCurrency: Currency,
+    rates: Map<String, Double>,
+) {
     LazyRow(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(rates) { (from, to, rate) ->
+        items(Currency.entries.filter { it != baseCurrency }.toList()) { currency ->
+            val rate = rates[currency.code] ?: return@items
             Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val text = "${to.code} ${rate}"
-                    Text(
-                        text = text,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = "${currency.code} ${formatAmount(rate, currency)}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                )
             }
         }
     }
 }
 
-fun convertCurrency(amount: Double, from: Currency, to: Currency): Double {
+fun convertCurrency(amount: Double, from: Currency, to: Currency, rates: Map<String, Double>): Double {
     if (from == to) return amount
-
-    val rates = mapOf(
-        "EUR" to 1.0,
-        "USD" to 0.92,
-        "GBP" to 1.17,
-        "RUB" to 0.0098,
-        "GEL" to 0.37,
-        "AMD" to 0.0026,
-        "TRY" to 0.028,
-        "ILS" to 0.25,
-    )
-    val inEur = amount / (rates[from.code] ?: 1.0)
-    return inEur * (rates[to.code] ?: 1.0)
+    val fromRate = rates[from.code] ?: 1.0
+    val toRate = rates[to.code] ?: 1.0
+    val inEur = amount / fromRate
+    return inEur * toRate
 }
 
 fun formatAmount(amount: Double, currency: Currency): String {

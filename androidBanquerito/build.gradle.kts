@@ -52,4 +52,5 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.navigation.compose)
     implementation(libs.splash)
+    implementation(libs.ktor.client.android)
 }

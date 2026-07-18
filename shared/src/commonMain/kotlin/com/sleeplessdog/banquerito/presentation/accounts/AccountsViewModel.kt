@@ -3,6 +3,7 @@ package com.sleeplessdog.banquerito.presentation.accounts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
+import com.sleeplessdog.banquerito.data.repository.ExchangeRateRepository
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
 import com.sleeplessdog.banquerito.domain.model.SimReminderInterval
@@ -20,6 +21,7 @@ import kotlin.uuid.Uuid
 data class AccountsUiState(
     val accounts: List<Account> = emptyList(),
     val selectedCurrency: Currency = Currency.EUR,
+    val exchangeRates: Map<String, Double> = emptyMap(),
     val isLoading: Boolean = false,
 )
 
@@ -31,6 +33,7 @@ data class AccountDetailUiState(
 
 class AccountsViewModel(
     private val repository: AccountRepository,
+    private val exchangeRateRepository: ExchangeRateRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountsUiState())
@@ -39,9 +42,19 @@ class AccountsViewModel(
     private val _detailUiState = MutableStateFlow(AccountDetailUiState())
     val detailUiState: StateFlow<AccountDetailUiState> = _detailUiState.asStateFlow()
 
+
     init {
         loadAccounts()
+        viewModelScope.launch {
+            exchangeRateRepository.refresh()
+            exchangeRateRepository.rates.collect { rates ->
+                _uiState.update { it.copy(exchangeRates = rates) }
+            }
+        }
     }
+
+    fun convertCurrency(amount: Double, from: String, to: String): Double =
+        exchangeRateRepository.convert(amount, from, to)
 
     private fun loadAccounts() {
         viewModelScope.launch {

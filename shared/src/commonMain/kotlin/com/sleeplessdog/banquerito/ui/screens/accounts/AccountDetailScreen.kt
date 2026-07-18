@@ -132,7 +132,10 @@ fun AccountDetailScreen(
                             val displayCurrency = uiState.selectedCurrency
                             if (account.currency != displayCurrency) {
                                 val converted = convertCurrency(
-                                    account.balance, account.currency, displayCurrency
+                                    account.balance,
+                                    account.currency,
+                                    displayCurrency,
+                                    uiState.exchangeRates
                                 )
                                 Text(
                                     text = formatAmount(converted, displayCurrency),

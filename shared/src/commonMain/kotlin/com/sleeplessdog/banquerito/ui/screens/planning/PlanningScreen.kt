@@ -43,16 +43,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sleeplessdog.banquerito.domain.model.Account
-import com.sleeplessdog.banquerito.domain.model.Currency
 import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedItem
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
 import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
 import com.sleeplessdog.banquerito.presentation.planning.PlannedPaymentViewModel
 import com.sleeplessdog.banquerito.ui.BanqueritoColors
-import com.sleeplessdog.banquerito.ui.screens.accounts.TotalBalanceHeader
 import com.sleeplessdog.banquerito.ui.screens.accounts.convertCurrency
 import com.sleeplessdog.banquerito.ui.screens.accounts.formatAmount
 import kotlinx.datetime.Clock
@@ -127,7 +124,7 @@ fun PlanningScreen(
                     val account = accountsState.accounts.find { it.id == item.accountId }
                     val daysUntil = (item.nextDate.toEpochDays() - today.toEpochDays()).toInt()
                     val hasEnough = account != null &&
-                            account.balance >= convertCurrency(item.amount, item.currency, account.currency)
+                            account.balance >= convertCurrency(item.amount, item.currency, account.currency, rates = accountsState.exchangeRates)
                     PlannedPaymentItem(
                         item = item,
                         account = account,
@@ -168,7 +165,7 @@ fun PlanningScreen(
                     val account = accountsState.accounts.find { it.id == item.accountId }
                     val daysUntil = (item.nextDate.toEpochDays() - today.toEpochDays()).toInt()
                     val hasEnough = account != null &&
-                            account.balance >= convertCurrency(item.amount, item.currency, account.currency)
+                            account.balance >= convertCurrency(item.amount, item.currency, account.currency, accountsState.exchangeRates)
                     PlannedPaymentItem(
                         item = item,
                         account = account,

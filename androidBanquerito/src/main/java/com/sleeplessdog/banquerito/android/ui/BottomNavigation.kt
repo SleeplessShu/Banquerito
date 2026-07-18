@@ -35,8 +35,8 @@ data class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem("operations", "Планирование", R.drawable.ic_strategy),
-    BottomNavItem("accounts", "Счета", R.drawable.ic_bank),
-    BottomNavItem("taxes", "Налоги", R.drawable.ic_wallet),
+    BottomNavItem("accounts", "Счета", R.drawable.ic_wallet),
+    BottomNavItem("taxes", "Налоги", R.drawable.ic_bank),
     BottomNavItem("consultant", "Консультант", R.drawable.ic_agent),
 )
 
