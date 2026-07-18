@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Banquerito</string>
+
+    <!--bottom menu-->
+    <string name="Operations">Operations</string>
+    <string name="Accounts">Accounts</string>
+    <string name="Taxes">Taxes</string>
+    <string name="Adviser">Adviser</string>
+</resources>

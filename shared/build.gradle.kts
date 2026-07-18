@@ -51,6 +51,10 @@ kotlin {
 
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
+            implementation(libs.koin.compose.viewmodel)
+
+            implementation(libs.navigation.compose)
         }
         androidMain.dependencies {
             implementation(libs.sqldelight.android)
@@ -78,7 +82,7 @@ android {
 
 sqldelight {
     databases {
-        create("BancaritoDB") {
+        create("BanqueritoDB") {
             packageName.set("com.sleeplessdog.banquerito.db")
         }
     }
