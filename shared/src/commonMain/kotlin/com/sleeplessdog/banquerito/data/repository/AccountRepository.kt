@@ -2,6 +2,8 @@ package com.sleeplessdog.banquerito.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
@@ -12,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 class AccountRepository(
@@ -58,7 +62,9 @@ class AccountRepository(
             type = transaction.type.name,
             amount = transaction.amount,
             comment = transaction.comment,
-            date = transaction.date.toString()
+            date = transaction.date.toString(),
+            to_account_id = transaction.toAccountId,
+            created_at = transaction.createdAt.toString()
         )
     }
 
@@ -71,6 +77,27 @@ class AccountRepository(
             sim_reminder_interval = interval.name,
             sim_reminder_last_date = lastDate?.toString(),
             id = id
+        )
+    }
+
+    suspend fun updateAccountBank(id: String, bankName: String) {
+        db.banqueritoDBQueries.updateAccountBank(bank_name = bankName, id = id)
+    }
+
+    fun getAccountById(id: String): Flow<Account?> =
+        db.banqueritoDBQueries.selectAccountById(id)
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .map { it?.toAccount() }
+
+    suspend fun updateTransaction(transaction: Transaction) {
+        db.banqueritoDBQueries.updateTransaction(
+            type = transaction.type.name,
+            amount = transaction.amount,
+            comment = transaction.comment,
+            date = transaction.date.toString(),
+            to_account_id = transaction.toAccountId,
+            id = transaction.id
         )
     }
 }
@@ -91,5 +118,7 @@ private fun com.sleeplessdog.banquerito.db.Transaction_.toTransaction() = Transa
     type = TransactionType.valueOf(type),
     amount = amount,
     comment = comment,
-    date = LocalDate.parse(date)
+    date = LocalDate.parse(date),
+    toAccountId = to_account_id,
+    createdAt = if (created_at.isNotEmpty()) Instant.parse(created_at) else Clock.System.now()
 )

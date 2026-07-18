@@ -50,4 +50,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.foundation)
     debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.navigation.compose)
+    implementation(libs.splash)
+    implementation(libs.ktor.client.android)
 }

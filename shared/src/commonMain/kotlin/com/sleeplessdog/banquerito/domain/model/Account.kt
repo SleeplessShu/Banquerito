@@ -14,9 +14,9 @@ data class Account(
 
 enum class SimReminderInterval(val label: String) {
     NEVER("Никогда"),
-    MONTHLY("Каждый месяц"),
-    TWO_MONTHS("Каждые 2 месяца"),
-    THREE_MONTHS("Каждые 3 месяца"),
+    MONTHLY("Месяц"),
+    TWO_MONTHS("2 месяца"),
+    THREE_MONTHS("3 месяца"),
 }
 
 enum class Currency(val symbol: String, val code: String) {
