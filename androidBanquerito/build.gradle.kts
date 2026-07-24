@@ -1,3 +1,11 @@
+import java.util.Properties
+import kotlin.apply
+
+val secretsFile = rootProject.file("secrets.properties")
+val secrets = Properties().apply {
+    if (secretsFile.exists()) load(secretsFile.inputStream())
+}
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -17,6 +25,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -24,8 +33,20 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            buildConfigField(
+                "String",
+                "ANTHROPIC_API_KEY",
+                "\"${secrets.getProperty("ANTHROPIC_API_KEY", "")}\""
+            )
+        }
         getByName("release") {
             isMinifyEnabled = false
+            buildConfigField(
+                "String",
+                "ANTHROPIC_API_KEY",
+                "\"${secrets.getProperty("ANTHROPIC_API_KEY", "")}\""
+            )
         }
     }
     compileOptions {

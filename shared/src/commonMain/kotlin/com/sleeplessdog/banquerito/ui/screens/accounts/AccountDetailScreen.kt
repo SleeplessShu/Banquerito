@@ -10,8 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import banquerito.shared.generated.resources.Res
+import banquerito.shared.generated.resources.*
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
 import com.sleeplessdog.banquerito.domain.model.SimReminderInterval
@@ -31,6 +32,7 @@ import com.sleeplessdog.banquerito.ui.BanqueritoColors
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,7 +160,7 @@ fun AccountDetailScreen(
             }
             item {
                 Text(
-                    text = "История операций",
+                    text = stringResource(Res.string.detail_history),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -172,7 +174,7 @@ fun AccountDetailScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Операций пока нет",
+                            text = stringResource(Res.string.detail_no_transactions),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -291,13 +293,13 @@ fun TransactionItem(
                 }
                 Column {
                     Text(
-                        text = transaction.comment.ifBlank { "Без комментария" },
+                        text = transaction.comment.ifBlank { stringResource(Res.string.detail_no_comment) },
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
                     val subText = if (transaction.type == TransactionType.TRANSFER_INCOME || transaction.type == TransactionType.TRANSFER_EXPENSE) {
                         val toAccount = allAccounts.find { it.id == transaction.toAccountId }
-                        "→ ${toAccount?.name ?: "другой счёт"} · ${transaction.date}"
+                        "→ ${toAccount?.name ?: stringResource(Res.string.detail_other_account) } · ${transaction.date}"
                     } else {
                         transaction.date.toString()
                     }
@@ -322,141 +324,17 @@ fun TransactionItem(
 
         DropdownMenu(
             expanded = showMenu, onDismissRequest = { showMenu = false }) {
-            DropdownMenuItem(text = { Text("Редактировать") }, onClick = {
+            DropdownMenuItem(text = { Text(stringResource(Res.string.action_edit)) }, onClick = {
                 showMenu = false
                 onEdit(transaction)
             })
             DropdownMenuItem(
-                text = { Text("Удалить", color = MaterialTheme.colorScheme.error) },
+                text = { Text(stringResource(Res.string.action_delete), color = MaterialTheme.colorScheme.error) },
                 onClick = {
                     showMenu = false
                     onDelete(transaction)
                 })
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddAccountSheet(
-    initial: Account? = null,
-    onConfirm: (String, String, Currency, SimReminderInterval) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var name by remember { mutableStateOf(initial?.name ?: "") }
-    var bankName by remember { mutableStateOf(initial?.bankName ?: "") }
-    var selectedCurrency by remember { mutableStateOf(initial?.currency ?: Currency.EUR) }
-    var simReminder by remember {
-        mutableStateOf(
-            initial?.simReminderInterval ?: SimReminderInterval.NEVER
-        )
-    }
-    var showCurrencyWheel by remember { mutableStateOf(false) }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text(
-                text = if (initial != null) "Редактировать счёт" else "Новый счёт",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Название") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = bankName,
-                onValueChange = { bankName = it },
-                label = { Text("Банк") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedCard(
-                modifier = Modifier.fillMaxWidth().clickable { showCurrencyWheel = true }) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Валюта", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("${selectedCurrency.symbol} ${selectedCurrency.code}")
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Напоминание об оплате привязанной симкарты каждые",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                SimReminderInterval.entries.forEach { interval ->
-                    FilterChip(
-                        selected = simReminder == interval,
-                        onClick = { simReminder = interval },
-                        label = {
-                            Text(
-                                text = interval.label,
-                                fontSize = 11.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                shape = RoundedCornerShape(8.dp), onClick = {
-                    if (name.isNotBlank() && bankName.isNotBlank()) {
-                        onConfirm(name.trim(), bankName.trim(), selectedCurrency, simReminder)
-                    }
-                }, modifier = Modifier.height(60.dp).fillMaxWidth()
-            ) {
-                Text(
-                    text = if (initial != null) "Сохранить" else "Создать счёт", fontSize = 16.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(60.dp))
-        }
-    }
-
-    if (showCurrencyWheel) {
-        var tempCurrency by remember { mutableStateOf(selectedCurrency) }
-        AlertDialog(
-            onDismissRequest = { showCurrencyWheel = false },
-            title = { Text("Выберите валюту") },
-            text = {
-                CurrencyWheelPicker(
-                    selected = tempCurrency, onSelect = { tempCurrency = it })
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    selectedCurrency = tempCurrency
-                    showCurrencyWheel = false
-                }) { Text("Выбрать") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCurrencyWheel = false }) { Text("Отмена") }
-            })
     }
 }
 
@@ -495,7 +373,7 @@ fun AddTransactionSheet(
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
-                text = if (editTransaction != null) "Редактировать операцию" else "Новая операция",
+                text = if (editTransaction != null) stringResource(Res.string.detail_edit_transaction) else stringResource(Res.string.detail_new_transaction),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -507,9 +385,9 @@ fun AddTransactionSheet(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 listOf(
-                    Triple(TransactionType.INCOME, "Доход", BanqueritoColors.Success),
-                    Triple(TransactionType.EXPENSE, "Расход", MaterialTheme.colorScheme.error),
-                    Triple(TransactionType.TRANSFER_EXPENSE, "Перевод", MaterialTheme.colorScheme.primary),
+                    Triple(TransactionType.INCOME, stringResource(Res.string.detail_income), BanqueritoColors.Success),
+                    Triple(TransactionType.EXPENSE, stringResource(Res.string.detail_expense), MaterialTheme.colorScheme.error),
+                    Triple(TransactionType.TRANSFER_EXPENSE, stringResource(Res.string.detail_transfer), MaterialTheme.colorScheme.primary),
                 ).forEach { (txnType, label, color) ->
                     FilterChip(
                         selected = type == txnType, onClick = { type = txnType }, label = {
@@ -539,7 +417,7 @@ fun AddTransactionSheet(
                             ?.let { "${it.name} · ${it.bankName}" } ?: "",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("На счёт") },
+                        label = { Text(stringResource(Res.string.detail_to_account)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -559,7 +437,7 @@ fun AddTransactionSheet(
                     ) {
                         if (otherAccounts.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Нет других счетов") },
+                                text = { Text(stringResource(Res.string.detail_no_other_accounts)) },
                                 onClick = {}
                             )
                         } else {
@@ -594,7 +472,7 @@ fun AddTransactionSheet(
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } },
-                label = { Text("Сумма") },
+                label = { Text(stringResource(Res.string.detail_amount)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -602,7 +480,7 @@ fun AddTransactionSheet(
             OutlinedTextField(
                 value = comment,
                 onValueChange = { comment = it },
-                label = { Text("Комментарий") },
+                label = { Text(stringResource(Res.string.detail_comment)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -617,7 +495,7 @@ fun AddTransactionSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Дата", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.detail_date), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(
                     "${date.dayOfMonth}.${
                         date.monthNumber.toString().padStart(2, '0')
@@ -633,7 +511,7 @@ fun AddTransactionSheet(
                 onConfirm(type, parsedAmount, comment, date, selectedToAccountId)
             }, modifier = Modifier.height(60.dp).fillMaxWidth()
         ) {
-            Text("Сохранить", fontSize = 16.sp)
+            Text(stringResource(Res.string.action_save), fontSize = 16.sp)
         }
         Spacer(modifier = Modifier.height(60.dp))
     }
@@ -646,9 +524,9 @@ if (showDatePicker) {
                 date = LocalDate.fromEpochDays((millis / 86400000).toInt())
             }
             showDatePicker = false
-        }) { Text("Выбрать") }
+        }) { Text(stringResource(Res.string.action_select)) }
     }, dismissButton = {
-        TextButton(onClick = { showDatePicker = false }) { Text("Отмена") }
+        TextButton(onClick = { showDatePicker = false }) { Text(stringResource(Res.string.action_cancel)) }
     }) {
         DatePicker(state = datePickerState)
     }
@@ -661,10 +539,10 @@ fun TransactionFilters(
     onSelect: (TransactionFilter) -> Unit,
 ) {
     val filters = listOf(
-        TransactionFilter.ALL to "Все",
-        TransactionFilter.INCOME to "Доходы",
-        TransactionFilter.EXPENSE to "Расходы",
-        TransactionFilter.TRANSFER to "Переводы",
+        TransactionFilter.ALL to stringResource(Res.string.detail_filter_all),
+        TransactionFilter.INCOME to stringResource(Res.string.detail_filter_income),
+        TransactionFilter.EXPENSE to stringResource(Res.string.detail_filter_expense),
+        TransactionFilter.TRANSFER to stringResource(Res.string.detail_filter_transfer),
     )
 
     LazyRow(

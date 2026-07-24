@@ -14,6 +14,8 @@ import com.sleeplessdog.banquerito.ui.screens.accounts.AccountsScreen
 import com.sleeplessdog.banquerito.ui.screens.planning.PlanningScreen
 import com.sleeplessdog.banquerito.ui.screens.settings.SettingsScreen
 import androidx.compose.runtime.getValue
+import com.sleeplessdog.banquerito.ui.screens.BottomNav
+import com.sleeplessdog.banquerito.ui.screens.consultant.ConsultantScreen
 
 sealed class Screen(val route: String) {
     data object Accounts : Screen("accounts")
@@ -71,10 +73,7 @@ fun AppNavigation() {
                 PlaceholderScreen("Налоги")
             }
             composable(Screen.Consultant.route) {
-                PlaceholderScreen("Консультант")
-            }
-            composable(Screen.Settings.route) {
-                PlaceholderScreen("Настройки")
+                ConsultantScreen()
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(onBack = { navController.popBackStack() })

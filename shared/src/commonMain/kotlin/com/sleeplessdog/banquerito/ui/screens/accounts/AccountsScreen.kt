@@ -18,22 +18,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,14 +38,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import banquerito.shared.generated.resources.Res
+import banquerito.shared.generated.resources.*
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
-import com.sleeplessdog.banquerito.domain.model.SimReminderInterval
 import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -84,8 +77,7 @@ fun AccountsScreen(
 
             item {
                 ExchangeRatesRow(
-                    baseCurrency = uiState.selectedCurrency,
-                    rates = uiState.exchangeRates
+                    baseCurrency = uiState.selectedCurrency, rates = uiState.exchangeRates
                 )
             }
 
@@ -102,8 +94,7 @@ fun AccountsScreen(
                     account = account,
                     displayCurrency = uiState.selectedCurrency,
                     rates = uiState.exchangeRates,
-                    onClick = { onAccountClick(account.id) }
-                )
+                    onClick = { onAccountClick(account.id) })
             }
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
@@ -130,18 +121,15 @@ fun TotalBalanceHeader(
     var showCurrencyWheel by remember { mutableStateOf(false) }
 
     Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier.fillMaxWidth()
+        color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Общий баланс",
+                text = stringResource(Res.string.accounts_total_balance),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -150,8 +138,7 @@ fun TotalBalanceHeader(
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable { showCurrencyWheel = true }
-            )
+                modifier = Modifier.clickable { showCurrencyWheel = true })
         }
     }
 
@@ -159,23 +146,22 @@ fun TotalBalanceHeader(
         var tempCurrency by remember { mutableStateOf(selectedCurrency) }
         AlertDialog(
             onDismissRequest = { showCurrencyWheel = false },
-            title = { Text("Выберите валюту") },
+            title = { Text(stringResource(Res.string.accounts_select_currency)) },
             text = {
                 CurrencyWheelPicker(
-                    selected = tempCurrency,
-                    onSelect = { tempCurrency = it }
-                )
+                    selected = tempCurrency, onSelect = { tempCurrency = it })
             },
             confirmButton = {
                 TextButton(onClick = {
                     onCurrencySelect(tempCurrency)
                     showCurrencyWheel = false
-                }) { Text("Выбрать") }
+                }) { Text(stringResource(Res.string.action_select)) }
             },
             dismissButton = {
-                TextButton(onClick = { showCurrencyWheel = false }) { Text("Отмена") }
-            }
-        )
+                TextButton(onClick = {
+                    showCurrencyWheel = false
+                }) { Text(stringResource(Res.string.action_cancel)) }
+            })
     }
 }
 
@@ -186,7 +172,8 @@ fun AccountCard(
     rates: Map<String, Double>,
     onClick: () -> Unit,
 ) {
-    val convertedBalance = convertCurrency(account.balance, account.currency, displayCurrency, rates)
+    val convertedBalance =
+        convertCurrency(account.balance, account.currency, displayCurrency, rates)
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp)
@@ -296,129 +283,6 @@ fun CurrencyWheelPicker(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddAccountSheet(
-
-    onConfirm: (String, String, Currency, SimReminderInterval) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var name by remember { mutableStateOf("") }
-    var bankName by remember { mutableStateOf("") }
-    var selectedCurrency by remember { mutableStateOf(Currency.EUR) }
-    var simReminder by remember { mutableStateOf(SimReminderInterval.NEVER) }
-    var showCurrencyWheel by remember { mutableStateOf(false) }
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text(
-                text = "Новый счёт", fontSize = 16.sp, fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Название") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = bankName,
-                onValueChange = { bankName = it },
-                label = { Text("Банк") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedCard(
-                modifier = Modifier.fillMaxWidth().clickable { showCurrencyWheel = true }) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Валюта", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("${selectedCurrency.symbol} ${selectedCurrency.code}")
-                }
-            }
-
-            if (showCurrencyWheel) {
-                var tempCurrency by remember { mutableStateOf(selectedCurrency) }
-                AlertDialog(
-                    onDismissRequest = { showCurrencyWheel = false },
-                    title = { Text("Выберите валюту") },
-                    text = {
-                        CurrencyWheelPicker(
-                            selected = tempCurrency, onSelect = { tempCurrency = it })
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            selectedCurrency = tempCurrency
-                            showCurrencyWheel = false
-                        }) {
-                            Text("Выбрать")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showCurrencyWheel = false }) {
-                            Text("Отмена")
-                        }
-                    })
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Напоминание об оплате привязанной симкарты каждые",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                SimReminderInterval.entries.forEach { interval ->
-                    FilterChip(
-                        selected = simReminder == interval,
-                        onClick = { simReminder = interval },
-                        label = {
-                            Text(
-                                text = interval.label,
-                                fontSize = 11.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                        modifier = Modifier.weight(1f)
-
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                shape = RoundedCornerShape(8.dp),
-
-                onClick = {
-                    if (name.isNotBlank() && bankName.isNotBlank()) {
-                        onConfirm(name.trim(), bankName.trim(), selectedCurrency, simReminder)
-                    }
-                },
-                modifier = Modifier.height(60.dp).fillMaxWidth(),
-            ) {
-                Text(text = "Создать счёт", fontSize = 16.sp)
-            }
-            Spacer(modifier = Modifier.height(60.dp))
-        }
-    }
-}
-
 @Composable
 fun ExchangeRatesRow(
     baseCurrency: Currency,
@@ -447,7 +311,9 @@ fun ExchangeRatesRow(
     }
 }
 
-fun convertCurrency(amount: Double, from: Currency, to: Currency, rates: Map<String, Double>): Double {
+fun convertCurrency(
+    amount: Double, from: Currency, to: Currency, rates: Map<String, Double>
+): Double {
     if (from == to) return amount
     val fromRate = rates[from.code] ?: 1.0
     val toRate = rates[to.code] ?: 1.0

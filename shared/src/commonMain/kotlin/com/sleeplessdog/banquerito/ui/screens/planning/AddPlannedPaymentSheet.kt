@@ -3,6 +3,7 @@ package com.sleeplessdog.banquerito.ui.screens.planning
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,16 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import banquerito.shared.generated.resources.*
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
+import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
 import com.sleeplessdog.banquerito.domain.model.Recurrence
+import com.sleeplessdog.banquerito.ui.BanqueritoColors
 import com.sleeplessdog.banquerito.ui.screens.accounts.CurrencyWheelPicker
 import com.sleeplessdog.banquerito.ui.screens.accounts.todayDate
 import kotlinx.datetime.LocalDate
-import androidx.compose.foundation.lazy.items
-import com.sleeplessdog.banquerito.domain.model.PlannedIncome
-import com.sleeplessdog.banquerito.ui.BanqueritoColors
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +37,6 @@ fun AddPlannedPaymentSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isIncome by remember { mutableStateOf(initialIncome != null) }
 
-    // payment fields
     var name by remember { mutableStateOf(initialPayment?.name ?: "") }
     var paymentAmount by remember { mutableStateOf(initialPayment?.amount?.toString() ?: "") }
     var paymentCurrency by remember { mutableStateOf(initialPayment?.currency ?: Currency.EUR) }
@@ -45,7 +46,6 @@ fun AddPlannedPaymentSheet(
     var paymentDate by remember { mutableStateOf(initialPayment?.nextDate ?: todayDate()) }
     var remindDaysBefore by remember { mutableStateOf(initialPayment?.remindDaysBefore?.toString() ?: "3") }
 
-    // income fields
     var incomeComment by remember { mutableStateOf(initialIncome?.comment ?: "") }
     var incomeAmount by remember { mutableStateOf(initialIncome?.amount?.toString() ?: "") }
     var incomeCurrency by remember { mutableStateOf(initialIncome?.currency ?: Currency.EUR) }
@@ -61,7 +61,6 @@ fun AddPlannedPaymentSheet(
         initialSelectedDateMillis = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
     )
 
-    // текущие значения в зависимости от режима
     val currentAmount = if (isIncome) incomeAmount else paymentAmount
     val currentCurrency = if (isIncome) incomeCurrency else paymentCurrency
     val currentAccountId = if (isIncome) incomeAccountId else paymentAccountId
@@ -84,7 +83,7 @@ fun AddPlannedPaymentSheet(
                     onClick = { isIncome = false },
                     label = {
                         Text(
-                            "Обязательство",
+                            stringResource(Res.string.planning_obligation),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                             fontSize = 13.sp
@@ -101,7 +100,7 @@ fun AddPlannedPaymentSheet(
                     onClick = { isIncome = true },
                     label = {
                         Text(
-                            "Поступление",
+                            stringResource(Res.string.planning_income),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                             fontSize = 13.sp
@@ -116,30 +115,32 @@ fun AddPlannedPaymentSheet(
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            // название / комментарий
             OutlinedTextField(
                 value = if (isIncome) incomeComment else name,
                 onValueChange = { if (isIncome) incomeComment = it else name = it },
-                label = { Text(if (isIncome) "Комментарий" else "Название") },
+                label = {
+                    Text(
+                        if (isIncome) stringResource(Res.string.planning_comment)
+                        else stringResource(Res.string.planning_name)
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            // сумма
             OutlinedTextField(
                 value = currentAmount,
                 onValueChange = {
                     val filtered = it.filter { c -> c.isDigit() || c == '.' }
                     if (isIncome) incomeAmount = filtered else paymentAmount = filtered
                 },
-                label = { Text("Сумма") },
+                label = { Text(stringResource(Res.string.planning_amount)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            // валюта
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -151,13 +152,12 @@ fun AddPlannedPaymentSheet(
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Валюта", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(Res.string.planning_currency), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("${currentCurrency.symbol} ${currentCurrency.code}")
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            // счёт
             ExposedDropdownMenuBox(
                 expanded = accountExpanded,
                 onExpandedChange = { accountExpanded = !accountExpanded }
@@ -167,7 +167,7 @@ fun AddPlannedPaymentSheet(
                         ?.let { "${it.name} · ${it.bankName}" } ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Счёт") },
+                    label = { Text(stringResource(Res.string.planning_account)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = accountExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -205,9 +205,8 @@ fun AddPlannedPaymentSheet(
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            // повторяемость
             Text(
-                text = "Повторяемость",
+                text = stringResource(Res.string.planning_recurrence),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -232,7 +231,6 @@ fun AddPlannedPaymentSheet(
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            // дата
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -245,18 +243,17 @@ fun AddPlannedPaymentSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Дата", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(Res.string.planning_date), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("${currentDate.dayOfMonth}.${currentDate.monthNumber.toString().padStart(2, '0')}.${currentDate.year}")
                 }
             }
 
-            // напоминание только для обязательств
             if (!isIncome) {
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = remindDaysBefore,
                     onValueChange = { remindDaysBefore = it.filter { c -> c.isDigit() } },
-                    label = { Text("Напомнить за дней") },
+                    label = { Text(stringResource(Res.string.planning_remind_days)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -270,34 +267,26 @@ fun AddPlannedPaymentSheet(
                         val parsed = incomeAmount.toDoubleOrNull() ?: return@Button
                         if (incomeComment.isBlank() || incomeAccountId.isBlank()) return@Button
                         onConfirmIncome(
-                            incomeComment.trim(),
-                            parsed,
-                            incomeCurrency,
-                            incomeAccountId,
-                            incomeRecurrence,
-                            incomeDate
+                            incomeComment.trim(), parsed, incomeCurrency,
+                            incomeAccountId, incomeRecurrence, incomeDate
                         )
                     } else {
                         val parsed = paymentAmount.toDoubleOrNull() ?: return@Button
                         if (name.isBlank() || paymentAccountId.isBlank()) return@Button
                         onConfirmPayment(
-                            name.trim(),
-                            parsed,
-                            paymentCurrency,
-                            paymentAccountId,
-                            recurrence,
-                            dayOfMonth.toIntOrNull() ?: 1,
-                            paymentDate,
-                            remindDaysBefore.toIntOrNull() ?: 3
+                            name.trim(), parsed, paymentCurrency, paymentAccountId,
+                            recurrence, dayOfMonth.toIntOrNull() ?: 1,
+                            paymentDate, remindDaysBefore.toIntOrNull() ?: 3
                         )
                     }
                 },
-                modifier = Modifier
-                    .height(60.dp)
-                    .fillMaxWidth()
+                modifier = Modifier.height(60.dp).fillMaxWidth()
             ) {
                 Text(
-                    text = if (initialPayment != null || initialIncome != null) "Сохранить" else "Добавить",
+                    text = if (initialPayment != null || initialIncome != null)
+                        stringResource(Res.string.action_save)
+                    else
+                        stringResource(Res.string.planning_add),
                     fontSize = 16.sp
                 )
             }
@@ -309,7 +298,7 @@ fun AddPlannedPaymentSheet(
         var tempCurrency by remember { mutableStateOf(currentCurrency) }
         AlertDialog(
             onDismissRequest = { showCurrencyWheel = false },
-            title = { Text("Выберите валюту") },
+            title = { Text(stringResource(Res.string.planning_select_currency)) },
             text = {
                 CurrencyWheelPicker(
                     selected = tempCurrency,
@@ -321,10 +310,12 @@ fun AddPlannedPaymentSheet(
                     if (isIncome) incomeCurrency = tempCurrency
                     else paymentCurrency = tempCurrency
                     showCurrencyWheel = false
-                }) { Text("Выбрать") }
+                }) { Text(stringResource(Res.string.action_select)) }
             },
             dismissButton = {
-                TextButton(onClick = { showCurrencyWheel = false }) { Text("Отмена") }
+                TextButton(onClick = { showCurrencyWheel = false }) {
+                    Text(stringResource(Res.string.action_cancel))
+                }
             }
         )
     }
@@ -339,10 +330,12 @@ fun AddPlannedPaymentSheet(
                         if (isIncome) incomeDate = date else paymentDate = date
                     }
                     showDatePicker = false
-                }) { Text("Выбрать") }
+                }) { Text(stringResource(Res.string.action_select)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Отмена") }
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(stringResource(Res.string.action_cancel))
+                }
             }
         ) {
             DatePicker(state = datePickerState)
