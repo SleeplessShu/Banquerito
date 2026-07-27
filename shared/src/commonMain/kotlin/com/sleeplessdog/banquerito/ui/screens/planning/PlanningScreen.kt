@@ -43,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import banquerito.shared.generated.resources.Res
+import banquerito.shared.generated.resources.*
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedItem
@@ -55,6 +57,7 @@ import com.sleeplessdog.banquerito.ui.screens.accounts.formatAmount
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +102,7 @@ fun PlanningScreen(
                 shape = RoundedCornerShape(8.dp),
                 onClick = { showAddPayment = true }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Добавить")
+                Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.action_add))
             }
         }
     ) { padding ->
@@ -114,7 +117,7 @@ fun PlanningScreen(
             if (upcoming.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Ближайшие 30 дней",
+                        text = stringResource(Res.string.planning_upcoming),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -155,7 +158,7 @@ fun PlanningScreen(
             if (rest.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Все обязательства",
+                        text = stringResource(Res.string.planning_all),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -202,7 +205,7 @@ fun PlanningScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Нет запланированных платежей",
+                            text = stringResource(Res.string.planning_empty),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -217,9 +220,9 @@ fun PlanningScreen(
                     ) {
                         Text(
                             text = if (uiState.showArchive)
-                                "Скрыть архив (${allArchived.size})"
+                                "${stringResource(Res.string.planning_archive_hide)} (${allArchived.size})"
                             else
-                                "Показать архив (${allArchived.size})",
+                                "${stringResource(Res.string.planning_archive_show)} (${allArchived.size})",
                             fontSize = 13.sp
                         )
                     }
@@ -354,16 +357,16 @@ fun PlannedPaymentItem(
                         )
                     }
                     Text(
-                        text = "${account?.name ?: "Счёт не найден"} · ${item.recurrence.label}",
+                        text = "${account?.name ?: stringResource(Res.string.planning_no_account)} · ${item.recurrence.label}",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     if (daysUntil != null) {
                         Text(
                             text = when (daysUntil) {
-                                0 -> "Сегодня"
-                                1 -> "Завтра"
-                                else -> "Через $daysUntil дней"
+                                0 -> stringResource(Res.string.planning_today)
+                                1 -> stringResource(Res.string.planning_tomorrow)
+                                else -> stringResource(Res.string.planning_days_left, daysUntil)
                             },
                             fontSize = 11.sp,
                             color = when {
@@ -384,7 +387,7 @@ fun PlannedPaymentItem(
                     )
                     if (daysUntil != null && !isIncome) {
                         Text(
-                            text = if (hasEnough) "✓ хватает" else "✗ не хватает",
+                            text = if (hasEnough) stringResource(Res.string.planning_enough) else stringResource(Res.string.planning_not_enough),
                             fontSize = 11.sp,
                             color = if (hasEnough) BanqueritoColors.Success
                             else MaterialTheme.colorScheme.error
@@ -400,14 +403,14 @@ fun PlannedPaymentItem(
         ) {
             if (!item.isArchived) {
                 DropdownMenuItem(
-                    text = { Text("Редактировать") },
+                    text = { Text(stringResource(Res.string.action_edit)) },
                     onClick = {
                         showMenu = false
                         onEdit(item)
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text("Архивировать") },
+                    text = { Text(stringResource(Res.string.action_archive)) },
                     onClick = {
                         showMenu = false
                         onArchive(item)
@@ -415,7 +418,7 @@ fun PlannedPaymentItem(
                 )
             }
             DropdownMenuItem(
-                text = { Text("Удалить", color = MaterialTheme.colorScheme.error) },
+                text = { Text(stringResource(Res.string.action_delete), color = MaterialTheme.colorScheme.error) },
                 onClick = {
                     showMenu = false
                     onDelete(item)
@@ -441,14 +444,14 @@ fun PlanningHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                    "Планирование",
+                stringResource(Res.string.planning_title),
                 fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     Icons.Default.Settings,
-                    contentDescription = "Настройки",
+                    contentDescription = stringResource(Res.string.planning_settings),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

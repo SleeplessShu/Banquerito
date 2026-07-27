@@ -26,7 +26,6 @@ iosBancarito/*.xcworkspace/xcuserdata/
 iosBancarito/Pods/
 **/*.xcbuilddata/
 
-# Keys и секреты — никогда не коммитим
 secrets.properties
 *.keystore
 *.jks

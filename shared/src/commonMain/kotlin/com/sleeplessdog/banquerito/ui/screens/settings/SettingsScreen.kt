@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import banquerito.shared.generated.resources.*
 import com.sleeplessdog.banquerito.domain.model.*
 import com.sleeplessdog.banquerito.presentation.settings.SettingsViewModel
 import com.sleeplessdog.banquerito.ui.screens.accounts.CurrencyWheelPicker
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,22 +28,15 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showCurrencyWheel by remember { mutableStateOf(false) }
 
-    Scaffold(
+    Scaffold { padding ->
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item { SettingsHeader(onBackClick = onBack) }
 
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            item {
-                SettingsHeader(onBackClick = onBack)
-            }
-            // личное
-            item { SectionHeader("Личное") }
+            item { SectionHeader(stringResource(Res.string.settings_personal)) }
 
             item {
                 SettingsDropdown(
-                    label = "Страна проживания",
+                    label = stringResource(Res.string.settings_country_of_residence),
                     selected = uiState.userProfile.countryOfResidence.label,
                     options = CountryOfResidence.entries.map { it.label },
                     onSelect = { index ->
@@ -57,7 +51,7 @@ fun SettingsScreen(
 
             item {
                 SettingsDropdown(
-                    label = "Гражданство",
+                    label = stringResource(Res.string.settings_citizenship),
                     selected = uiState.userProfile.citizenship.label,
                     options = Citizenship.entries.map { it.label },
                     onSelect = { index ->
@@ -72,18 +66,17 @@ fun SettingsScreen(
 
             item {
                 SettingsCard(
-                    label = "Валюта по умолчанию",
+                    label = stringResource(Res.string.settings_default_currency),
                     value = "${uiState.userProfile.defaultCurrency.symbol} ${uiState.userProfile.defaultCurrency.code}",
                     onClick = { showCurrencyWheel = true }
                 )
             }
 
-            // налоговое
-            item { SectionHeader("Налоговый профиль") }
+            item { SectionHeader(stringResource(Res.string.settings_tax_profile)) }
 
             item {
                 SettingsDropdown(
-                    label = "Налоговое резиденство",
+                    label = stringResource(Res.string.settings_tax_residency),
                     selected = uiState.taxProfile.taxResidency.label,
                     options = TaxResidency.entries.map { it.label },
                     onSelect = { index ->
@@ -104,14 +97,13 @@ fun SettingsScreen(
                 )
             }
 
-            // динамические поля по стране
             when (val settings = uiState.taxProfile.countryTaxSettings) {
                 is CountryTaxSettings.Spain -> {
-                    item { SectionHeader("Испания") }
+                    item { SectionHeader(stringResource(Res.string.settings_spain)) }
 
                     item {
                         SettingsDropdown(
-                            label = "Статус",
+                            label = stringResource(Res.string.settings_status),
                             selected = settings.status.label,
                             options = SpainEmploymentStatus.entries.map { it.label },
                             onSelect = { index ->
@@ -122,13 +114,10 @@ fun SettingsScreen(
                         )
                     }
 
-                    // autonomo поля
-                    if (settings.status == SpainEmploymentStatus.AUTONOMO
-
-                    ) {
+                    if (settings.status == SpainEmploymentStatus.AUTONOMO) {
                         item {
                             SettingsDropdown(
-                                label = "Режим",
+                                label = stringResource(Res.string.settings_autonomo_regime),
                                 selected = settings.autonomoRegime.label,
                                 options = SpainAutonomoRegime.entries.map { it.label },
                                 onSelect = { index ->
@@ -146,7 +135,7 @@ fun SettingsScreen(
                                         settings.copy(autonomoStartYear = it.toIntOrNull())
                                     )
                                 },
-                                label = { Text("Год начала как autónomo") },
+                                label = { Text(stringResource(Res.string.settings_autonomo_start_year)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -161,7 +150,7 @@ fun SettingsScreen(
                                         settings.copy(epigrafe = it)
                                     )
                                 },
-                                label = { Text("Epígrafe IAE") },
+                                label = { Text(stringResource(Res.string.settings_epigrafe)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -170,7 +159,7 @@ fun SettingsScreen(
                         }
                         item {
                             SettingsToggle(
-                                label = "Плательщик IVA",
+                                label = stringResource(Res.string.settings_iva_payer),
                                 checked = settings.isIvaPayer,
                                 onCheckedChange = {
                                     viewModel.updateCountryTaxSettings(
@@ -181,7 +170,7 @@ fun SettingsScreen(
                         }
                         item {
                             SettingsDropdown(
-                                label = "Тип декларации",
+                                label = stringResource(Res.string.settings_declaration_type),
                                 selected = settings.declarationType.label,
                                 options = SpainDeclarationType.entries.map { it.label },
                                 onSelect = { index ->
@@ -193,9 +182,8 @@ fun SettingsScreen(
                         }
                     }
 
-                    // визовые поля для всех испанских статусов кроме employee
                     if (settings.status != SpainEmploymentStatus.EMPLOYEE) {
-                        item { SectionHeader("Виза и документы") }
+                        item { SectionHeader(stringResource(Res.string.settings_visa_documents)) }
                         item {
                             OutlinedTextField(
                                 value = settings.visaExpiryDate ?: "",
@@ -204,7 +192,7 @@ fun SettingsScreen(
                                         settings.copy(visaExpiryDate = it.ifBlank { null })
                                     )
                                 },
-                                label = { Text("Дата окончания визы (дд.мм.гггг)") },
+                                label = { Text(stringResource(Res.string.settings_visa_expiry)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -219,7 +207,7 @@ fun SettingsScreen(
                                         settings.copy(tieExpiryDate = it.ifBlank { null })
                                     )
                                 },
-                                label = { Text("Дата окончания TIE (дд.мм.гггг)") },
+                                label = { Text(stringResource(Res.string.settings_tie_expiry)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -228,7 +216,7 @@ fun SettingsScreen(
                         }
                         item {
                             SettingsSlider(
-                                label = "Напомнить о визе за ${settings.remindVisaDays} дней",
+                                label = stringResource(Res.string.settings_remind_visa_days, settings.remindVisaDays),
                                 value = settings.remindVisaDays.toFloat(),
                                 range = 7f..90f,
                                 onValueChange = {
@@ -240,12 +228,10 @@ fun SettingsScreen(
                         }
                     }
 
-                    // поля для зависимых
                     if (settings.status == SpainEmploymentStatus.DEPENDENT_AUTONOMO ||
                         settings.status == SpainEmploymentStatus.DEPENDENT_NOMAD
                     ) {
-                        item { SectionHeader("Данные партнёра") }
-
+                        item { SectionHeader(stringResource(Res.string.settings_partner_data)) }
                         item {
                             OutlinedTextField(
                                 value = settings.partnerVisaExpiryDate ?: "",
@@ -254,7 +240,7 @@ fun SettingsScreen(
                                         settings.copy(partnerVisaExpiryDate = it.ifBlank { null })
                                     )
                                 },
-                                label = { Text("Дата окончания визы партнёра") },
+                                label = { Text(stringResource(Res.string.settings_partner_visa_expiry)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -265,10 +251,10 @@ fun SettingsScreen(
                 }
 
                 is CountryTaxSettings.Serbia -> {
-                    item { SectionHeader("Сербия") }
+                    item { SectionHeader(stringResource(Res.string.settings_serbia)) }
                     item {
                         SettingsDropdown(
-                            label = "Статус",
+                            label = stringResource(Res.string.settings_status),
                             selected = settings.status.label,
                             options = SerbiaEmploymentStatus.entries.map { it.label },
                             onSelect = { index ->
@@ -281,7 +267,7 @@ fun SettingsScreen(
                     if (settings.status == SerbiaEmploymentStatus.SOLE_TRADER) {
                         item {
                             SettingsToggle(
-                                label = "Паушальный налог",
+                                label = stringResource(Res.string.settings_paushalni),
                                 checked = settings.pausalniPorez,
                                 onCheckedChange = {
                                     viewModel.updateCountryTaxSettings(
@@ -296,7 +282,7 @@ fun SettingsScreen(
                     ) {
                         item {
                             SettingsToggle(
-                                label = "Плательщик НДС",
+                                label = stringResource(Res.string.settings_vat_payer),
                                 checked = settings.vatPayer,
                                 onCheckedChange = {
                                     viewModel.updateCountryTaxSettings(
@@ -306,7 +292,7 @@ fun SettingsScreen(
                             )
                         }
                     }
-                    item { SectionHeader("Виза") }
+                    item { SectionHeader(stringResource(Res.string.settings_visa)) }
                     item {
                         OutlinedTextField(
                             value = settings.visaExpiryDate ?: "",
@@ -315,7 +301,7 @@ fun SettingsScreen(
                                     settings.copy(visaExpiryDate = it.ifBlank { null })
                                 )
                             },
-                            label = { Text("Дата окончания визы (дд.мм.гггг)") },
+                            label = { Text(stringResource(Res.string.settings_visa_expiry)) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -324,7 +310,7 @@ fun SettingsScreen(
                     }
                     item {
                         SettingsSlider(
-                            label = "Напомнить о визе за ${settings.remindVisaDays} дней",
+                            label = stringResource(Res.string.settings_remind_visa_days, settings.remindVisaDays),
                             value = settings.remindVisaDays.toFloat(),
                             range = 7f..90f,
                             onValueChange = {
@@ -337,10 +323,10 @@ fun SettingsScreen(
                 }
 
                 is CountryTaxSettings.Armenia -> {
-                    item { SectionHeader("Армения") }
+                    item { SectionHeader(stringResource(Res.string.settings_armenia)) }
                     item {
                         SettingsDropdown(
-                            label = "Статус",
+                            label = stringResource(Res.string.settings_status),
                             selected = settings.status.label,
                             options = ArmeniaEmploymentStatus.entries.map { it.label },
                             onSelect = { index ->
@@ -352,7 +338,7 @@ fun SettingsScreen(
                     }
                     item {
                         SettingsToggle(
-                            label = "IT зона",
+                            label = stringResource(Res.string.settings_it_zone),
                             checked = settings.itZone,
                             onCheckedChange = {
                                 viewModel.updateCountryTaxSettings(
@@ -363,7 +349,7 @@ fun SettingsScreen(
                     }
                     item {
                         SettingsToggle(
-                            label = "Плательщик НДС",
+                            label = stringResource(Res.string.settings_vat_payer),
                             checked = settings.vatPayer,
                             onCheckedChange = {
                                 viewModel.updateCountryTaxSettings(
@@ -377,14 +363,14 @@ fun SettingsScreen(
                 is CountryTaxSettings.None -> {}
             }
 
-            // напоминания
-            item { SectionHeader("Напоминания") }
+            item { SectionHeader(stringResource(Res.string.settings_reminders)) }
+
             if (uiState.taxProfile.countryTaxSettings is CountryTaxSettings.Spain &&
                 (uiState.taxProfile.countryTaxSettings as CountryTaxSettings.Spain).status == SpainEmploymentStatus.AUTONOMO
             ) {
                 item {
                     SettingsSlider(
-                        label = "Квартальная декларация — за ${uiState.taxProfile.remindQuarterlyDays} дней",
+                        label = stringResource(Res.string.settings_remind_quarterly_days, uiState.taxProfile.remindQuarterlyDays),
                         value = uiState.taxProfile.remindQuarterlyDays.toFloat(),
                         range = 1f..30f,
                         onValueChange = {
@@ -394,10 +380,9 @@ fun SettingsScreen(
                         }
                     )
                 }
-
                 item {
                     SettingsSlider(
-                        label = "Renta — за ${uiState.taxProfile.remindRentaDays} дней",
+                        label = stringResource(Res.string.settings_remind_renta_days, uiState.taxProfile.remindRentaDays),
                         value = uiState.taxProfile.remindRentaDays.toFloat(),
                         range = 1f..60f,
                         onValueChange = {
@@ -408,6 +393,7 @@ fun SettingsScreen(
                     )
                 }
             }
+
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
@@ -416,7 +402,7 @@ fun SettingsScreen(
         var tempCurrency by remember { mutableStateOf(uiState.userProfile.defaultCurrency) }
         AlertDialog(
             onDismissRequest = { showCurrencyWheel = false },
-            title = { Text("Валюта по умолчанию") },
+            title = { Text(stringResource(Res.string.settings_select_currency)) },
             text = {
                 CurrencyWheelPicker(
                     selected = tempCurrency,
@@ -429,10 +415,12 @@ fun SettingsScreen(
                         uiState.userProfile.copy(defaultCurrency = tempCurrency)
                     )
                     showCurrencyWheel = false
-                }) { Text("Выбрать") }
+                }) { Text(stringResource(Res.string.action_select)) }
             },
             dismissButton = {
-                TextButton(onClick = { showCurrencyWheel = false }) { Text("Отмена") }
+                TextButton(onClick = { showCurrencyWheel = false }) {
+                    Text(stringResource(Res.string.action_cancel))
+                }
             }
         )
     }
@@ -559,10 +547,7 @@ fun SettingsSlider(
 }
 
 @Composable
-fun SettingsHeader(
-    onBackClick: () -> Unit,
-) {
-
+fun SettingsHeader(onBackClick: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.fillMaxWidth()
@@ -577,16 +562,15 @@ fun SettingsHeader(
             IconButton(onClick = onBackClick) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = stringResource(Res.string.settings_back),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Text(
-                "Настройки",
+                stringResource(Res.string.settings_title),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
-
         }
     }
 }

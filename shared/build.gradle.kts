@@ -1,4 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -37,6 +40,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.components.resources)
+            implementation(libs.compose.ui.tooling.preview)
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
@@ -76,6 +80,7 @@ kotlin {
 }
 
 android {
+
     namespace = "com.sleeplessdog.banquerito"
     compileSdk = 35
     defaultConfig {

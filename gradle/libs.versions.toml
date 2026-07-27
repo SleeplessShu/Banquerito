@@ -43,7 +43,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-multiplatform" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.components:components-ui-tooling-preview", version.ref = "compose-multiplatform" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 

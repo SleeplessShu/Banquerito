@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="selected_item">#444f8e</color>
-    <color name="text_primary">#fff9e7</color>
-    <color name="text_second">#9f9898</color>
-    <color name="text_third">#268258</color>
-    <color name="error">#85683C</color>
-    <color name="outcome">#853C3C</color>
-    <color name="background_item">#1a1a1a</color>
-    <color name="background_app">#131313</color>
-    <color name="pink">#E21A90</color>
+
 </resources>
