@@ -7,6 +7,9 @@ data class ChatMessage(
     val role: ChatRole,
     val content: String,
     val createdAt: Instant,
+    val attachedFilePath: String? = null,
+    val attachedFileName: String? = null,
+    val attachedFileMimeType: String? = null,
 )
 
 enum class ChatRole {

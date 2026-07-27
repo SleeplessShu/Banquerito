@@ -4,6 +4,7 @@ import com.sleeplessdog.banquerito.data.DatabaseDriverFactory
 import com.sleeplessdog.banquerito.data.remote.ClaudeApi
 import com.sleeplessdog.banquerito.data.remote.ExchangeRateApi
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
+import com.sleeplessdog.banquerito.data.repository.ChatRepository
 import com.sleeplessdog.banquerito.data.repository.ExchangeRateRepository
 import com.sleeplessdog.banquerito.data.repository.PlannedPaymentRepository
 import com.sleeplessdog.banquerito.data.repository.SettingsRepository
@@ -25,12 +26,15 @@ val appModule = module {
     single { ExchangeRateApi() }
     single { ExchangeRateRepository(get()) }
     single { ClaudeApi() }
+    single { ChatRepository(get()) }
 
     viewModel {
         ConsultantViewModel(
             accountRepository = get(),
             settingsRepository = get(),
             exchangeRateRepository = get(),
+            chatRepository = get(),
+            fileStorage = get(),
             claudeApi = get(),
             apiKey = get(named("anthropicKey")),
         )

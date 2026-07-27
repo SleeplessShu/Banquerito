@@ -121,18 +121,28 @@
     <string name="consultant_suggestion_quarter">Когда следующая квартальная декларация?</string>
     <string name="consultant_placeholder">Спроси что-нибудь...</string>
     <string name="consultant_voice">Голос</string>
-    <string name="consultant_attach">Прикрепить</string>
     <string name="consultant_context_user">ДАННЫЕ ПОЛЬЗОВАТЕЛЯ</string>
     <string name="consultant_context_tax">НАЛОГОВЫЙ ПРОФИЛЬ</string>
     <string name="consultant_context_accounts">СЧЕТА</string>
     <string name="consultant_context_rates">КУРСЫ ВАЛЮТ (база EUR)</string>
     <string name="consultant_name_unknown">не указано</string>
+    <string name="consultant_name">Имя: </string>
+    <string name="consultant_country_of_residence">Страна проживания: </string>">
+    <string name="consultant_citizenship">Гражданство: </string>">
     <string name="consultant_no_response">Нет ответа</string>
+    <string name="consultant_userdata">=== ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ===</string>
+    <string name="consultant_taxUserdata">=== НАЛОГОВЫЙ ПРОФИЛЬ ===</string>
+    <string name="consultant_accounts">=== СЧЕТА ===</string>
+    <string name="consultant_currency">=== КУРСЫ ВАЛЮТ (база EUR) ===</string>
+    <string name="consultant_taxCitizenship">Налоговое резидентство: </string>
+    <string name="consultant_settings">Настройки: </string>
+    <string name="consultant_attach_failed">Не удалось прикрепить файл</string>
     <string name="consultant_system_prompt">Ты финансовый ассистент приложения Banquerito для экспатов и фрилансеров.\n        Отвечай на русском языке, кратко и по делу.\n        Помогай с налогами, планированием бюджета, анализом трат, вопросами про autonomo в Испании.</string>
 
+
     <string name="action_attach">Прикрепить</string>
-    <string name="actions_clear">Очистить</string>
-    <string name="actions_send">Отправить</string>
+    <string name="action_clear">Очистить</string>
+    <string name="action_send">Отправить</string>
     <string name="action_delete">Удалить</string>
     <string name="action_archive">Архивировать</string>
     <string name="action_add">Добавить</string>
