@@ -1,6 +1,7 @@
 package com.sleeplessdog.banquerito.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Citizenship
@@ -46,6 +47,24 @@ class SettingsRepository(private val db: BanqueritoDB) {
             remind_quarterly_days = profile.remindQuarterlyDays.toLong(),
             remind_renta_days = profile.remindRentaDays.toLong(),
         )
+    }
+
+    fun getTaxAccountIds(): Flow<List<String>> =
+        db.banqueritoDBQueries.selectTaxAccountIds()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { list -> list.map { it } }
+
+    suspend fun addTaxAccount(accountId: String) {
+        db.banqueritoDBQueries.insertTaxAccountInclusion(accountId)
+    }
+
+    suspend fun removeTaxAccount(accountId: String) {
+        db.banqueritoDBQueries.deleteTaxAccountInclusion(accountId)
+    }
+
+    suspend fun toggleTaxAccount(accountId: String, include: Boolean) {
+        if (include) addTaxAccount(accountId) else removeTaxAccount(accountId)
     }
 }
 
