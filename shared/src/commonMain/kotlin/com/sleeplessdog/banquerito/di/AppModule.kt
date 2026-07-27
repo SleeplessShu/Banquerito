@@ -13,6 +13,7 @@ import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
 import com.sleeplessdog.banquerito.presentation.consultant.ConsultantViewModel
 import com.sleeplessdog.banquerito.presentation.planning.PlannedPaymentViewModel
 import com.sleeplessdog.banquerito.presentation.settings.SettingsViewModel
+import com.sleeplessdog.banquerito.presentation.taxes.TaxesViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
@@ -42,4 +43,5 @@ val appModule = module {
     viewModelOf(::AccountsViewModel)
     viewModelOf(::PlannedPaymentViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::TaxesViewModel)
 }

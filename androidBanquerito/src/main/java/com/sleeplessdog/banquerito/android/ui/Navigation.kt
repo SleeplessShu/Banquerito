@@ -16,6 +16,7 @@ import com.sleeplessdog.banquerito.ui.screens.settings.SettingsScreen
 import androidx.compose.runtime.getValue
 import com.sleeplessdog.banquerito.ui.screens.BottomNav
 import com.sleeplessdog.banquerito.ui.screens.consultant.ConsultantScreen
+import com.sleeplessdog.banquerito.ui.screens.tax.TaxesScreen
 
 sealed class Screen(val route: String) {
     data object Accounts : Screen("accounts")
@@ -70,7 +71,7 @@ fun AppNavigation() {
                 )
             }
             composable(Screen.Taxes.route) {
-                PlaceholderScreen("Налоги")
+                TaxesScreen()
             }
             composable(Screen.Consultant.route) {
                 ConsultantScreen()
