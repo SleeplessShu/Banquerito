@@ -6,6 +6,10 @@ import banquerito.shared.generated.resources.Res
 import banquerito.shared.generated.resources.*
 import com.sleeplessdog.banquerito.data.DocumentTextExtractor
 import com.sleeplessdog.banquerito.data.FileStorage
+import com.sleeplessdog.banquerito.data.interfaces.IAccountRepository
+import com.sleeplessdog.banquerito.data.interfaces.IChatRepository
+import com.sleeplessdog.banquerito.data.interfaces.IExchangeRateRepository
+import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.data.isTextExtractable
 import com.sleeplessdog.banquerito.data.remote.ClaudeApi
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
@@ -44,10 +48,10 @@ enum class AttachState {
     NONE, SUCCESS, FAILED
 }
 class ConsultantViewModel(
-    private val accountRepository: AccountRepository,
-    private val settingsRepository: SettingsRepository,
-    private val exchangeRateRepository: ExchangeRateRepository,
-    private val chatRepository: ChatRepository,
+    private val accountRepository: IAccountRepository,
+    private val settingsRepository: ISettingsRepository,
+    private val exchangeRateRepository: IExchangeRateRepository,
+    private val chatRepository: IChatRepository,
     private val fileStorage: FileStorage,
     private val claudeApi: ClaudeApi,
     private val apiKey: String,

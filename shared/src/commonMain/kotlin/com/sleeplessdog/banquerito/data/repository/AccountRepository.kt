@@ -4,6 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.sleeplessdog.banquerito.data.interfaces.IAccountRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.Currency
@@ -20,22 +21,21 @@ import kotlinx.datetime.LocalDate
 
 class AccountRepository(
     private val db: BanqueritoDB
+) : IAccountRepository {
 
-) {
-
-    fun getAllAccounts(): Flow<List<Account>> =
+    override  fun getAllAccounts(): Flow<List<Account>> =
         db.banqueritoDBQueries.selectAllAccounts()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toAccount() } }
 
-    fun getTransactionsByAccount(accountId: String): Flow<List<Transaction>> =
+    override fun getTransactionsByAccount(accountId: String): Flow<List<Transaction>> =
         db.banqueritoDBQueries.selectTransactionsByAccount(accountId)
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toTransaction() } }
 
-    suspend fun insertAccount(account: Account) {
+    override suspend fun insertAccount(account: Account) {
         db.banqueritoDBQueries.insertAccount(
             id = account.id,
             name = account.name,
@@ -47,15 +47,15 @@ class AccountRepository(
         )
     }
 
-    suspend fun updateAccountName(id: String, name: String) {
+    override suspend fun updateAccountName(id: String, name: String) {
         db.banqueritoDBQueries.updateAccountName(name = name, id = id)
     }
 
-    suspend fun updateAccountBalance(id: String, balance: Double) {
+    override suspend fun updateAccountBalance(id: String, balance: Double) {
         db.banqueritoDBQueries.updateAccountBalance(balance = balance, id = id)
     }
 
-    suspend fun insertTransaction(transaction: Transaction) {
+    override  suspend fun insertTransaction(transaction: Transaction) {
         db.banqueritoDBQueries.insertTransaction(
             id = transaction.id,
             account_id = transaction.accountId,
@@ -68,11 +68,11 @@ class AccountRepository(
         )
     }
 
-    suspend fun deleteTransaction(id: String) {
+    override suspend fun deleteTransaction(id: String) {
         db.banqueritoDBQueries.deleteTransaction(id)
     }
 
-    suspend fun updateSimReminder(id: String, interval: SimReminderInterval, lastDate: LocalDate?) {
+    override suspend fun updateSimReminder(id: String, interval: SimReminderInterval, lastDate: LocalDate?) {
         db.banqueritoDBQueries.updateSimReminder(
             sim_reminder_interval = interval.name,
             sim_reminder_last_date = lastDate?.toString(),
@@ -80,17 +80,17 @@ class AccountRepository(
         )
     }
 
-    suspend fun updateAccountBank(id: String, bankName: String) {
+    override suspend fun updateAccountBank(id: String, bankName: String) {
         db.banqueritoDBQueries.updateAccountBank(bank_name = bankName, id = id)
     }
 
-    fun getAccountById(id: String): Flow<Account?> =
+    override fun getAccountById(id: String): Flow<Account?> =
         db.banqueritoDBQueries.selectAccountById(id)
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
             .map { it?.toAccount() }
 
-    suspend fun updateTransaction(transaction: Transaction) {
+    override suspend fun updateTransaction(transaction: Transaction) {
         db.banqueritoDBQueries.updateTransaction(
             type = transaction.type.name,
             amount = transaction.amount,

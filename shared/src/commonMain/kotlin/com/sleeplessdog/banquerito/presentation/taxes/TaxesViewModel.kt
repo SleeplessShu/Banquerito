@@ -4,6 +4,8 @@ package com.sleeplessdog.banquerito.presentation.taxes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sleeplessdog.banquerito.data.TaxCalculator
+import com.sleeplessdog.banquerito.data.interfaces.IAccountRepository
+import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
 import com.sleeplessdog.banquerito.data.repository.SettingsRepository
 import com.sleeplessdog.banquerito.domain.model.*
@@ -32,8 +34,8 @@ data class TaxesUiState(
 }
 
 class TaxesViewModel(
-    private val accountRepository: AccountRepository,
-    private val settingsRepository: SettingsRepository,
+    private val accountRepository: IAccountRepository,
+    private val settingsRepository: ISettingsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TaxesUiState())

@@ -3,6 +3,7 @@ package com.sleeplessdog.banquerito.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Citizenship
 import com.sleeplessdog.banquerito.domain.model.CountryOfResidence
@@ -17,21 +18,21 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SettingsRepository(private val db: BanqueritoDB) {
+class SettingsRepository(private val db: BanqueritoDB) : ISettingsRepository {
 
-    fun getUserProfile(): Flow<UserProfile> =
+    override fun getUserProfile(): Flow<UserProfile> =
         db.banqueritoDBQueries.selectUserProfile()
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
             .map { it?.toUserProfile() ?: UserProfile() }
 
-    fun getTaxProfile(): Flow<TaxProfile> =
+    override fun getTaxProfile(): Flow<TaxProfile> =
         db.banqueritoDBQueries.selectTaxProfile()
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
             .map { it?.toTaxProfile() ?: TaxProfile() }
 
-    suspend fun upsertUserProfile(profile: UserProfile) {
+    override suspend fun upsertUserProfile(profile: UserProfile) {
         db.banqueritoDBQueries.upsertUserProfile(
             name = profile.name,
             country_of_residence = profile.countryOfResidence.name,
@@ -40,7 +41,7 @@ class SettingsRepository(private val db: BanqueritoDB) {
         )
     }
 
-    suspend fun upsertTaxProfile(profile: TaxProfile) {
+    override suspend fun upsertTaxProfile(profile: TaxProfile) {
         db.banqueritoDBQueries.upsertTaxProfile(
             tax_residency = profile.taxResidency.name,
             country_tax_settings_json = profile.countryTaxSettings.toJson(),
@@ -49,21 +50,21 @@ class SettingsRepository(private val db: BanqueritoDB) {
         )
     }
 
-    fun getTaxAccountIds(): Flow<List<String>> =
+    override fun getTaxAccountIds(): Flow<List<String>> =
         db.banqueritoDBQueries.selectTaxAccountIds()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it } }
 
-    suspend fun addTaxAccount(accountId: String) {
+    override suspend fun addTaxAccount(accountId: String) {
         db.banqueritoDBQueries.insertTaxAccountInclusion(accountId)
     }
 
-    suspend fun removeTaxAccount(accountId: String) {
+    override suspend fun removeTaxAccount(accountId: String) {
         db.banqueritoDBQueries.deleteTaxAccountInclusion(accountId)
     }
 
-    suspend fun toggleTaxAccount(accountId: String, include: Boolean) {
+    override suspend fun toggleTaxAccount(accountId: String, include: Boolean) {
         if (include) addTaxAccount(accountId) else removeTaxAccount(accountId)
     }
 }

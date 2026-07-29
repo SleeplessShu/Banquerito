@@ -13,6 +13,9 @@ koin = "4.0.0"
 navigation = "2.8.0-alpha10"
 kotlinx-serialization = "1.7.3"
 ktor = "3.1.2"
+kotlinx-coroutines-test = "1.9.0"
+junit = "4.13.2"
+
 
 [libraries]
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -52,6 +55,9 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 splash = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
+
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
