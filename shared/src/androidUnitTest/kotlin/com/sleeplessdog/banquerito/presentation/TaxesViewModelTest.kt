@@ -1,7 +1,5 @@
-package com.sleeplessdog.banquerito.presentation.taxes
+package com.sleeplessdog.banquerito.presentation
 
-import com.sleeplessdog.banquerito.testutil.FakeAccountRepository
-import com.sleeplessdog.banquerito.testutil.FakeSettingsRepository
 import com.sleeplessdog.banquerito.domain.model.Account
 import com.sleeplessdog.banquerito.domain.model.CountryTaxSettings
 import com.sleeplessdog.banquerito.domain.model.Currency
@@ -12,24 +10,27 @@ import com.sleeplessdog.banquerito.domain.model.TaxResidency
 import com.sleeplessdog.banquerito.domain.model.Transaction
 import com.sleeplessdog.banquerito.domain.model.TransactionType
 import com.sleeplessdog.banquerito.domain.model.UserProfile
+import com.sleeplessdog.banquerito.presentation.taxes.TaxesViewModel
+import com.sleeplessdog.banquerito.testutil.FakeAccountRepository
+import com.sleeplessdog.banquerito.testutil.FakeSettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.junit.After
 import org.junit.Before
 import kotlin.test.Test
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toLocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class TaxesViewModelTest {
 
@@ -62,12 +63,16 @@ class TaxesViewModelTest {
         val account1 = fakeAccount("acc1")
         val account2 = fakeAccount("acc2")
         accountRepository.setAccounts(listOf(account1, account2))
-        accountRepository.setTransactions("acc1", listOf(
-            fakeIncomeTransaction("acc1", 1000.0, today())
-        ))
-        accountRepository.setTransactions("acc2", listOf(
-            fakeIncomeTransaction("acc2", 5000.0, today())
-        ))
+        accountRepository.setTransactions(
+            "acc1", listOf(
+                fakeIncomeTransaction("acc1", 1000.0, today())
+            )
+        )
+        accountRepository.setTransactions(
+            "acc2", listOf(
+                fakeIncomeTransaction("acc2", 5000.0, today())
+            )
+        )
         settingsRepository.taxAccountIdsFlow.value = listOf("acc1")
 
         val viewModel = createViewModel()
@@ -85,10 +90,12 @@ class TaxesViewModelTest {
         val currentQuarterDate = today()
         val previousQuarterDate = currentQuarterDate.minusOneQuarterApprox()
 
-        accountRepository.setTransactions("acc1", listOf(
-            fakeIncomeTransaction("acc1", 1000.0, currentQuarterDate),
-            fakeIncomeTransaction("acc1", 9999.0, previousQuarterDate)
-        ))
+        accountRepository.setTransactions(
+            "acc1", listOf(
+                fakeIncomeTransaction("acc1", 1000.0, currentQuarterDate),
+                fakeIncomeTransaction("acc1", 9999.0, previousQuarterDate)
+            )
+        )
 
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
@@ -102,17 +109,19 @@ class TaxesViewModelTest {
         accountRepository.setAccounts(listOf(account))
         settingsRepository.taxAccountIdsFlow.value = listOf("acc1")
 
-        accountRepository.setTransactions("acc1", listOf(
-            fakeIncomeTransaction("acc1", 1000.0, today()),
-            Transaction(
-                id = "t2",
-                accountId = "acc1",
-                type = TransactionType.EXPENSE,
-                amount = 500.0,
-                comment = "",
-                date = today(),
+        accountRepository.setTransactions(
+            "acc1", listOf(
+                fakeIncomeTransaction("acc1", 1000.0, today()),
+                Transaction(
+                    id = "t2",
+                    accountId = "acc1",
+                    type = TransactionType.EXPENSE,
+                    amount = 500.0,
+                    comment = "",
+                    date = today(),
+                )
             )
-        ))
+        )
 
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
@@ -124,7 +133,10 @@ class TaxesViewModelTest {
     fun `zero tax accounts results in zero income`() = runTest {
         val account = fakeAccount("acc1")
         accountRepository.setAccounts(listOf(account))
-        accountRepository.setTransactions("acc1", listOf(fakeIncomeTransaction("acc1", 1000.0, today())))
+        accountRepository.setTransactions(
+            "acc1",
+            listOf(fakeIncomeTransaction("acc1", 1000.0, today()))
+        )
         settingsRepository.taxAccountIdsFlow.value = emptyList()
 
         val viewModel = createViewModel()
@@ -137,7 +149,10 @@ class TaxesViewModelTest {
     fun `calculation reflects tax profile settings`() = runTest {
         val account = fakeAccount("acc1")
         accountRepository.setAccounts(listOf(account))
-        accountRepository.setTransactions("acc1", listOf(fakeIncomeTransaction("acc1", 6000.0, today())))
+        accountRepository.setTransactions(
+            "acc1",
+            listOf(fakeIncomeTransaction("acc1", 6000.0, today()))
+        )
         settingsRepository.taxAccountIdsFlow.value = listOf("acc1")
         settingsRepository.taxProfileFlow.value = TaxProfile(
             taxResidency = TaxResidency.SPAIN,
@@ -161,7 +176,10 @@ class TaxesViewModelTest {
     fun `slider income overrides effective income and recalculates`() = runTest {
         val account = fakeAccount("acc1")
         accountRepository.setAccounts(listOf(account))
-        accountRepository.setTransactions("acc1", listOf(fakeIncomeTransaction("acc1", 1000.0, today())))
+        accountRepository.setTransactions(
+            "acc1",
+            listOf(fakeIncomeTransaction("acc1", 1000.0, today()))
+        )
         settingsRepository.taxAccountIdsFlow.value = listOf("acc1")
 
         val viewModel = createViewModel()
@@ -180,7 +198,10 @@ class TaxesViewModelTest {
     fun `reset slider returns to actual income`() = runTest {
         val account = fakeAccount("acc1")
         accountRepository.setAccounts(listOf(account))
-        accountRepository.setTransactions("acc1", listOf(fakeIncomeTransaction("acc1", 1200.0, today())))
+        accountRepository.setTransactions(
+            "acc1",
+            listOf(fakeIncomeTransaction("acc1", 1200.0, today()))
+        )
         settingsRepository.taxAccountIdsFlow.value = listOf("acc1")
 
         val viewModel = createViewModel()

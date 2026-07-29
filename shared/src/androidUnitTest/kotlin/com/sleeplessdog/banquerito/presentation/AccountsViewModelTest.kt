@@ -1,7 +1,11 @@
-package com.sleeplessdog.banquerito.presentation.accounts
+package com.sleeplessdog.banquerito.presentation
 
-
-import com.sleeplessdog.banquerito.domain.model.*
+import com.sleeplessdog.banquerito.domain.model.Account
+import com.sleeplessdog.banquerito.domain.model.Currency
+import com.sleeplessdog.banquerito.domain.model.SimReminderInterval
+import com.sleeplessdog.banquerito.domain.model.Transaction
+import com.sleeplessdog.banquerito.domain.model.TransactionType
+import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
 import com.sleeplessdog.banquerito.testutil.FakeAccountRepository
 import com.sleeplessdog.banquerito.testutil.FakeExchangeRateRepository
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +14,9 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.junit.After
 import org.junit.Before
@@ -79,7 +85,10 @@ class AccountsViewModelTest {
         assertEquals(1, accountRepository.insertedAccounts.size)
         assertEquals(0.0, accountRepository.insertedAccounts.first().balance)
         assertEquals("My account", accountRepository.insertedAccounts.first().name)
-        assertEquals(SimReminderInterval.NEVER, accountRepository.insertedAccounts.first().simReminderInterval)
+        assertEquals(
+            SimReminderInterval.NEVER,
+            accountRepository.insertedAccounts.first().simReminderInterval
+        )
     }
 
     @Test
@@ -121,10 +130,12 @@ class AccountsViewModelTest {
 
     @Test
     fun `addTransfer moves money between two accounts`() = runTest {
-        accountRepository.setAccounts(listOf(
-            fakeAccount("from", 1000.0),
-            fakeAccount("to", 200.0),
-        ))
+        accountRepository.setAccounts(
+            listOf(
+                fakeAccount("from", 1000.0),
+                fakeAccount("to", 200.0),
+            )
+        )
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -137,10 +148,12 @@ class AccountsViewModelTest {
 
     @Test
     fun `addTransfer creates two linked transactions`() = runTest {
-        accountRepository.setAccounts(listOf(
-            fakeAccount("from", 1000.0),
-            fakeAccount("to", 200.0),
-        ))
+        accountRepository.setAccounts(
+            listOf(
+                fakeAccount("from", 1000.0),
+                fakeAccount("to", 200.0),
+            )
+        )
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -162,9 +175,11 @@ class AccountsViewModelTest {
     @Test
     fun `deleteTransaction income reverts balance decrease`() = runTest {
         accountRepository.setAccounts(listOf(fakeAccount("acc1", 1500.0)))
-        accountRepository.setTransactions("acc1", listOf(
-            fakeTransaction("t1", "acc1", TransactionType.INCOME, 500.0)
-        ))
+        accountRepository.setTransactions(
+            "acc1", listOf(
+                fakeTransaction("t1", "acc1", TransactionType.INCOME, 500.0)
+            )
+        )
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
         viewModel.loadAccountDetail("acc1")
@@ -181,9 +196,11 @@ class AccountsViewModelTest {
     @Test
     fun `deleteTransaction expense reverts balance increase`() = runTest {
         accountRepository.setAccounts(listOf(fakeAccount("acc1", 700.0)))
-        accountRepository.setTransactions("acc1", listOf(
-            fakeTransaction("t1", "acc1", TransactionType.EXPENSE, 300.0)
-        ))
+        accountRepository.setTransactions(
+            "acc1", listOf(
+                fakeTransaction("t1", "acc1", TransactionType.EXPENSE, 300.0)
+            )
+        )
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
         viewModel.loadAccountDetail("acc1")
@@ -198,21 +215,25 @@ class AccountsViewModelTest {
 
     @Test
     fun `deleteTransaction transfer reverts both accounts`() = runTest {
-        accountRepository.setAccounts(listOf(
-            fakeAccount("from", 700.0),
-            fakeAccount("to", 500.0),
-        ))
-        accountRepository.setTransactions("from", listOf(
-            Transaction(
-                id = "t1",
-                accountId = "from",
-                type = TransactionType.TRANSFER_EXPENSE,
-                amount = 300.0,
-                comment = "",
-                date = today(),
-                toAccountId = "to",
+        accountRepository.setAccounts(
+            listOf(
+                fakeAccount("from", 700.0),
+                fakeAccount("to", 500.0),
             )
-        ))
+        )
+        accountRepository.setTransactions(
+            "from", listOf(
+                Transaction(
+                    id = "t1",
+                    accountId = "from",
+                    type = TransactionType.TRANSFER_EXPENSE,
+                    amount = 300.0,
+                    comment = "",
+                    date = today(),
+                    toAccountId = "to",
+                )
+            )
+        )
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
         viewModel.loadAccountDetail("from")
@@ -264,9 +285,11 @@ class AccountsViewModelTest {
     @Test
     fun `loadAccountDetail loads correct account and transactions`() = runTest {
         accountRepository.setAccounts(listOf(fakeAccount("acc1", 1000.0)))
-        accountRepository.setTransactions("acc1", listOf(
-            fakeTransaction("t1", "acc1", TransactionType.INCOME, 200.0)
-        ))
+        accountRepository.setTransactions(
+            "acc1", listOf(
+                fakeTransaction("t1", "acc1", TransactionType.INCOME, 200.0)
+            )
+        )
         val viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -312,7 +335,7 @@ class AccountsViewModelTest {
     )
 
     private fun today(): LocalDate {
-        val now = kotlinx.datetime.Clock.System.now()
-        return now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).date
+        val now = Clock.System.now()
+        return now.toLocalDateTime(TimeZone.currentSystemDefault()).date
     }
 }
