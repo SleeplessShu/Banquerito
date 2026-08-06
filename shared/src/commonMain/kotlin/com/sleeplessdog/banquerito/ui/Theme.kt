@@ -8,6 +8,7 @@ object BanqueritoColors {
     val Primary = Color(0xFF444F8E)
     val OnPrimary = Color(0xFFFFF9E7)
     val PrimaryContainer = Color(0xFF444F8E)
+    val PrimarySelectedBackground = Color(0xFF54448E)
     val OnPrimaryContainer = Color(0xFFFFF9E7)
 
     val Background = Color(0xFF131313)
@@ -22,6 +23,12 @@ object BanqueritoColors {
     val OnError = Color(0xFF853C3C)
 
     val Success = Color(0xFF268258)
+
+    val TaxNetIncome = Color(0xFF2E9E63)
+    val TaxIrpf = Color(0xFFD4622B)
+    val TaxIva = Color(0xFF5B6BC0)
+    val TaxCuota = Color(0xFF8A56AC)
+    val TaxOther = Color(0xFF6B7280)
 }
 
 val BanqueritoColorScheme: ColorScheme = darkColorScheme(
@@ -37,4 +44,5 @@ val BanqueritoColorScheme: ColorScheme = darkColorScheme(
     onSurfaceVariant = BanqueritoColors.OnSurfaceVariant,
     error = BanqueritoColors.Error,
     onError = BanqueritoColors.OnError,
+    surfaceTint = BanqueritoColors.PrimarySelectedBackground,
 )

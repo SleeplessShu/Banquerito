@@ -1,6 +1,11 @@
 package com.sleeplessdog.banquerito.di
 
 import com.sleeplessdog.banquerito.data.DatabaseDriverFactory
+import com.sleeplessdog.banquerito.data.interfaces.IAccountRepository
+import com.sleeplessdog.banquerito.data.interfaces.IChatRepository
+import com.sleeplessdog.banquerito.data.interfaces.IExchangeRateRepository
+import com.sleeplessdog.banquerito.data.interfaces.IPlannedPaymentRepository
+import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.data.remote.ClaudeApi
 import com.sleeplessdog.banquerito.data.remote.ExchangeRateApi
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
@@ -21,13 +26,14 @@ import org.koin.dsl.module
 
 val appModule = module {
     single<BanqueritoDB> { BanqueritoDB(get<DatabaseDriverFactory>().createDriver()) }
-    single { AccountRepository(get()) }
-    single { PlannedPaymentRepository(get()) }
-    single { SettingsRepository(get()) }
+    single<IAccountRepository> { AccountRepository(get()) }
+    single<ISettingsRepository> { SettingsRepository(get()) }
+    single<IPlannedPaymentRepository> { PlannedPaymentRepository(get()) }
+    single<IExchangeRateRepository> { ExchangeRateRepository(get()) }
+    single<IChatRepository> { ChatRepository(get()) }
+
     single { ExchangeRateApi() }
-    single { ExchangeRateRepository(get()) }
     single { ClaudeApi() }
-    single { ChatRepository(get()) }
 
     viewModel {
         ConsultantViewModel(

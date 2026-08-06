@@ -65,5 +65,16 @@ fun TaxesScreen(
         }
 
         item { Spacer(modifier = Modifier.height(80.dp)) }
+
+        uiState.irpfBreakdown?.let { breakdown ->
+            item {
+                IrpfBracketsCard(
+                    breakdown = breakdown,
+                    currency = uiState.currency,
+                    mode = uiState.extrapolationMode,
+                    onModeChange = { viewModel.updateExtrapolationMode(it) },
+                )
+            }
+        }
     }
 }

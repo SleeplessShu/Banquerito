@@ -2,6 +2,7 @@ package com.sleeplessdog.banquerito.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.data.repository.SettingsRepository
 import com.sleeplessdog.banquerito.domain.model.CountryTaxSettings
 import com.sleeplessdog.banquerito.domain.model.TaxProfile
@@ -19,7 +20,7 @@ data class SettingsUiState(
 )
 
 class SettingsViewModel(
-    private val repository: SettingsRepository
+    private val repository: ISettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())

@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.map
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.sleeplessdog.banquerito.data.interfaces.IPlannedPaymentRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.Citizenship
 import com.sleeplessdog.banquerito.domain.model.CountryOfResidence
@@ -18,21 +19,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
-class PlannedPaymentRepository(private val db: BanqueritoDB) {
+class PlannedPaymentRepository(private val db: BanqueritoDB): IPlannedPaymentRepository {
 
-    fun getAllPlannedPayments(): Flow<List<PlannedPayment>> =
+    override fun getAllPlannedPayments(): Flow<List<PlannedPayment>> =
         db.banqueritoDBQueries.selectAllPlannedPayments()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toPlannedPayment() } }
 
-    fun getArchivedPlannedPayments(): Flow<List<PlannedPayment>> =
+    override fun getArchivedPlannedPayments(): Flow<List<PlannedPayment>> =
         db.banqueritoDBQueries.selectArchivedPlannedPayments()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toPlannedPayment() } }
 
-    suspend fun insertPlannedPayment(payment: PlannedPayment) {
+    override suspend fun insertPlannedPayment(payment: PlannedPayment) {
         db.banqueritoDBQueries.insertPlannedPayment(
             id = payment.id,
             name = payment.name,
@@ -49,7 +50,7 @@ class PlannedPaymentRepository(private val db: BanqueritoDB) {
         )
     }
 
-    suspend fun updatePlannedPayment(payment: PlannedPayment) {
+    override suspend fun updatePlannedPayment(payment: PlannedPayment) {
         db.banqueritoDBQueries.updatePlannedPayment(
             name = payment.name,
             amount = payment.amount,
@@ -64,45 +65,30 @@ class PlannedPaymentRepository(private val db: BanqueritoDB) {
         )
     }
 
-    suspend fun archivePlannedPayment(id: String, archivedAt: Instant) {
+    override suspend fun archivePlannedPayment(id: String, archivedAt: Instant) {
         db.banqueritoDBQueries.archivePlannedPayment(
             archived_at = archivedAt.toString(),
             id = id
         )
     }
 
-    suspend fun deletePlannedPayment(id: String) {
+    override suspend fun deletePlannedPayment(id: String) {
         db.banqueritoDBQueries.deletePlannedPayment(id)
     }
 
-    fun getUserProfile(): Flow<UserProfile?> =
-        db.banqueritoDBQueries.selectUserProfile()
-            .asFlow()
-            .mapToOneOrNull(Dispatchers.IO)
-            .map { it?.toUserProfile() }
-
-    suspend fun upsertUserProfile(profile: UserProfile) {
-        db.banqueritoDBQueries.upsertUserProfile(
-            name = profile.name,
-            country_of_residence = profile.countryOfResidence.name,
-            citizenship = profile.citizenship.name,
-            default_currency = profile.defaultCurrency.code
-        )
-    }
-
-    fun getAllPlannedIncomes(): Flow<List<PlannedIncome>> =
+    override fun getAllPlannedIncomes(): Flow<List<PlannedIncome>> =
         db.banqueritoDBQueries.selectAllPlannedIncomes()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toPlannedIncome() } }
 
-    fun getArchivedPlannedIncomes(): Flow<List<PlannedIncome>> =
+    override fun getArchivedPlannedIncomes(): Flow<List<PlannedIncome>> =
         db.banqueritoDBQueries.selectArchivedPlannedIncomes()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toPlannedIncome() } }
 
-    suspend fun insertPlannedIncome(income: PlannedIncome) {
+    override suspend fun insertPlannedIncome(income: PlannedIncome) {
         db.banqueritoDBQueries.insertPlannedIncome(
             id = income.id,
             comment = income.comment,
@@ -116,7 +102,7 @@ class PlannedPaymentRepository(private val db: BanqueritoDB) {
         )
     }
 
-    suspend fun updatePlannedIncome(income: PlannedIncome) {
+    override suspend fun updatePlannedIncome(income: PlannedIncome) {
         db.banqueritoDBQueries.updatePlannedIncome(
             comment = income.comment,
             amount = income.amount,
@@ -128,14 +114,14 @@ class PlannedPaymentRepository(private val db: BanqueritoDB) {
         )
     }
 
-    suspend fun archivePlannedIncome(id: String, archivedAt: Instant) {
+    override suspend fun archivePlannedIncome(id: String, archivedAt: Instant) {
         db.banqueritoDBQueries.archivePlannedIncome(
             archived_at = archivedAt.toString(),
             id = id
         )
     }
 
-    suspend fun deletePlannedIncome(id: String) {
+    override suspend fun deletePlannedIncome(id: String) {
         db.banqueritoDBQueries.deletePlannedIncome(id)
     }
 }

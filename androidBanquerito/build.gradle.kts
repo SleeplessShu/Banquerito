@@ -74,4 +74,5 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.splash)
     implementation(libs.ktor.client.android)
+    implementation(libs.kotlinx.coroutines.test)
 }

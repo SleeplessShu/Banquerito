@@ -2,6 +2,8 @@ package com.sleeplessdog.banquerito.presentation.accounts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sleeplessdog.banquerito.data.interfaces.IAccountRepository
+import com.sleeplessdog.banquerito.data.interfaces.IExchangeRateRepository
 import com.sleeplessdog.banquerito.data.repository.AccountRepository
 import com.sleeplessdog.banquerito.data.repository.ExchangeRateRepository
 import com.sleeplessdog.banquerito.domain.model.Account
@@ -32,8 +34,8 @@ data class AccountDetailUiState(
 )
 
 class AccountsViewModel(
-    private val repository: AccountRepository,
-    private val exchangeRateRepository: ExchangeRateRepository,
+    private val repository: IAccountRepository,
+    private val exchangeRateRepository: IExchangeRateRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountsUiState())

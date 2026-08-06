@@ -3,6 +3,8 @@ package com.sleeplessdog.banquerito.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import com.sleeplessdog.banquerito.data.interfaces.ChatSummaryData
+import com.sleeplessdog.banquerito.data.interfaces.IChatRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.domain.model.ChatMessage
 import com.sleeplessdog.banquerito.domain.model.ChatRole
@@ -12,20 +14,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 
-data class ChatSummaryData(
-    val summary: String,
-    val summarizedUpToMessageId: String?,
-)
+class ChatRepository(private val db: BanqueritoDB): IChatRepository {
 
-class ChatRepository(private val db: BanqueritoDB) {
-
-    fun getAllMessages(): Flow<List<ChatMessage>> =
+    override fun getAllMessages(): Flow<List<ChatMessage>> =
         db.banqueritoDBQueries.selectAllChatMessages()
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { list -> list.map { it.toChatMessage() } }
 
-    suspend fun insertMessage(message: ChatMessage) {
+    override suspend fun insertMessage(message: ChatMessage) {
         db.banqueritoDBQueries.insertChatMessage(
             id = message.id,
             role = message.role.name,
@@ -38,18 +35,18 @@ class ChatRepository(private val db: BanqueritoDB) {
     }
 
 
-    suspend fun clearAllMessages() {
+    override suspend fun clearAllMessages() {
         db.banqueritoDBQueries.deleteAllChatMessages()
         db.banqueritoDBQueries.deleteChatSummary()
     }
 
-    fun getSummary(): Flow<ChatSummaryData?> =
+    override fun getSummary(): Flow<ChatSummaryData?> =
         db.banqueritoDBQueries.selectChatSummary()
             .asFlow()
             .mapToOneOrNull(Dispatchers.IO)
             .map { it?.let { row -> ChatSummaryData(row.summary, row.summarized_up_to_message_id) } }
 
-    suspend fun saveSummary(summary: String, upToMessageId: String) {
+    override suspend fun saveSummary(summary: String, upToMessageId: String) {
         db.banqueritoDBQueries.upsertChatSummary(summary, upToMessageId)
     }
 }

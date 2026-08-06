@@ -1,11 +1,12 @@
 package com.sleeplessdog.banquerito.data.repository
 
+import com.sleeplessdog.banquerito.data.interfaces.IExchangeRateRepository
 import com.sleeplessdog.banquerito.data.remote.ExchangeRateApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class ExchangeRateRepository(private val api: ExchangeRateApi) {
+class ExchangeRateRepository(private val api: ExchangeRateApi): IExchangeRateRepository {
 
     private val _rates = MutableStateFlow<Map<String, Double>>(
         // дефолтные значения пока не загрузились
@@ -36,16 +37,16 @@ class ExchangeRateRepository(private val api: ExchangeRateApi) {
             "CHF" to 0.94,
         )
     )
-    val rates: StateFlow<Map<String, Double>> = _rates.asStateFlow()
+    override val rates: StateFlow<Map<String, Double>> = _rates.asStateFlow()
 
-    suspend fun refresh(baseCurrency: String = "EUR") {
+    override suspend fun refresh(baseCurrency: String) {
         val newRates = api.getRates(baseCurrency)
         if (newRates.isNotEmpty()) {
             _rates.value = newRates
         }
     }
 
-    fun convert(amount: Double, from: String, to: String): Double {
+    override fun convert(amount: Double, from: String, to: String): Double {
         val r = _rates.value
         if (from == to) return amount
         val inBase = amount / (r[from] ?: 1.0)

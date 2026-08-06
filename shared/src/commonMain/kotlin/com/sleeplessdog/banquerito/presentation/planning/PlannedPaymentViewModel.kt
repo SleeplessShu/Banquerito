@@ -2,7 +2,8 @@ package com.sleeplessdog.banquerito.presentation.planning
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sleeplessdog.banquerito.data.repository.PlannedPaymentRepository
+import com.sleeplessdog.banquerito.data.interfaces.IPlannedPaymentRepository
+import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.domain.model.Currency
 import com.sleeplessdog.banquerito.domain.model.PlannedIncome
 import com.sleeplessdog.banquerito.domain.model.PlannedPayment
@@ -20,7 +21,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class PlannedPaymentViewModel(
-    private val repository: PlannedPaymentRepository
+    private val plannedPaymentRepository: IPlannedPaymentRepository,
+    private val settingsRepository: ISettingsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlanningUiState())
@@ -36,7 +38,7 @@ class PlannedPaymentViewModel(
 
     private fun loadArchivedIncomes() {
         viewModelScope.launch {
-            repository.getArchivedPlannedIncomes().collect { archived ->
+            plannedPaymentRepository.getArchivedPlannedIncomes().collect { archived ->
                 _uiState.update { it.copy(archivedIncomes = archived) }
             }
         }
@@ -44,7 +46,7 @@ class PlannedPaymentViewModel(
 
     private fun loadIncomes() {
         viewModelScope.launch {
-            repository.getAllPlannedIncomes().collect { incomes ->
+            plannedPaymentRepository.getAllPlannedIncomes().collect { incomes ->
                 _uiState.update { it.copy(incomes = incomes) }
             }
         }
@@ -52,7 +54,7 @@ class PlannedPaymentViewModel(
 
     private fun loadPayments() {
         viewModelScope.launch {
-            repository.getAllPlannedPayments().collect { payments ->
+            plannedPaymentRepository.getAllPlannedPayments().collect { payments ->
                 _uiState.update { it.copy(payments = payments) }
             }
         }
@@ -60,7 +62,7 @@ class PlannedPaymentViewModel(
 
     private fun loadArchived() {
         viewModelScope.launch {
-            repository.getArchivedPlannedPayments().collect { archived ->
+            plannedPaymentRepository.getArchivedPlannedPayments().collect { archived ->
                 _uiState.update { it.copy(archivedPayments = archived) }
             }
         }
@@ -68,7 +70,7 @@ class PlannedPaymentViewModel(
 
     private fun loadUserProfile() {
         viewModelScope.launch {
-            repository.getUserProfile().collect { profile ->
+            settingsRepository.getUserProfile().collect { profile ->
                 _uiState.update { it.copy(userProfile = profile ?: UserProfile()) }
             }
         }
@@ -100,37 +102,37 @@ class PlannedPaymentViewModel(
                 isArchived = false,
                 archivedAt = null,
             )
-            repository.insertPlannedPayment(payment)
+            plannedPaymentRepository.insertPlannedPayment(payment)
         }
     }
 
     fun updatePayment(payment: PlannedPayment) {
         viewModelScope.launch {
-            repository.updatePlannedPayment(payment)
+            plannedPaymentRepository.updatePlannedPayment(payment)
         }
     }
 
     fun archivePayment(payment: PlannedPayment) {
         viewModelScope.launch {
-            repository.archivePlannedPayment(payment.id, Clock.System.now())
+            plannedPaymentRepository.archivePlannedPayment(payment.id, Clock.System.now())
         }
     }
 
     fun archiveIncome(income: PlannedIncome) {
         viewModelScope.launch {
-            repository.archivePlannedIncome(income.id, Clock.System.now())
+            plannedPaymentRepository.archivePlannedIncome(income.id, Clock.System.now())
         }
     }
 
     fun deleteIncome(income: PlannedIncome) {
         viewModelScope.launch {
-            repository.deletePlannedIncome(income.id)
+            plannedPaymentRepository.deletePlannedIncome(income.id)
         }
     }
 
     fun deletePayment(payment: PlannedPayment) {
         viewModelScope.launch {
-            repository.deletePlannedPayment(payment.id)
+            plannedPaymentRepository.deletePlannedPayment(payment.id)
         }
     }
 
@@ -140,13 +142,13 @@ class PlannedPaymentViewModel(
 
     fun saveUserProfile(profile: UserProfile) {
         viewModelScope.launch {
-            repository.upsertUserProfile(profile)
+            settingsRepository.upsertUserProfile(profile)
         }
     }
 
     fun updateIncome(income: PlannedIncome) {
         viewModelScope.launch {
-            repository.updatePlannedIncome(income)
+            plannedPaymentRepository.updatePlannedIncome(income)
         }
     }
 
@@ -169,7 +171,7 @@ class PlannedPaymentViewModel(
                 recurrence = recurrence,
                 nextDate = nextDate,
             )
-            repository.insertPlannedIncome(income)
+            plannedPaymentRepository.insertPlannedIncome(income)
         }
     }
 }

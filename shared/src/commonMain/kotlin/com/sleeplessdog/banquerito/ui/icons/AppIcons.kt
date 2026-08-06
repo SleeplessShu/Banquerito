@@ -19,4 +19,5 @@ object AppIcons {
     @Composable fun payment(): Painter = painterResource(Res.drawable.ic_payment)
     @Composable fun bank(): Painter = painterResource(Res.drawable.ic_bank)
     @Composable fun agent(): Painter = painterResource(Res.drawable.ic_agent)
+    @Composable fun settings(): Painter = painterResource(Res.drawable.ic_settings)
 }
