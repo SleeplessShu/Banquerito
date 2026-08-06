@@ -12,6 +12,13 @@ data class TaxSegment(
     val amount: Double,
     val percentOfGross: Float,
     val colorRole: TaxSegmentColor,
+    val subSegments: List<TaxSubSegment> = emptyList(),
+)
+
+data class TaxSubSegment(
+    val label: String,
+    val amount: Double,
+    val percentOfGross: Float,
 )
 
 enum class TaxSegmentColor {

@@ -9,12 +9,18 @@ object TaxCalculator {
         grossIncome: Double,
         currency: Currency,
         taxProfile: TaxProfile,
-        monthsInPeriod: Int = 3, // квартал по умолчанию
+        monthsInPeriod: Int = 3,
+        extrapolationMode: IncomeExtrapolationMode = IncomeExtrapolationMode.EXTRAPOLATE_CURRENT_QUARTER,
+        yearToDateIncome: Double = grossIncome,
+        currentMonth: Int = 12,
     ): TaxCalculation {
         val settings = taxProfile.countryTaxSettings
 
         return when (settings) {
-            is CountryTaxSettings.Spain -> calculateSpain(grossIncome, currency, settings, monthsInPeriod)
+            is CountryTaxSettings.Spain -> calculateSpain(
+                grossIncome, currency, settings, monthsInPeriod,
+                extrapolationMode, yearToDateIncome, currentMonth,
+            )
             is CountryTaxSettings.Serbia -> calculateSerbia(grossIncome, currency, settings, monthsInPeriod)
             is CountryTaxSettings.Armenia -> calculateArmenia(grossIncome, currency, settings)
             is CountryTaxSettings.None -> TaxCalculation(
@@ -33,6 +39,9 @@ object TaxCalculator {
         currency: Currency,
         settings: CountryTaxSettings.Spain,
         monthsInPeriod: Int,
+        extrapolationMode: IncomeExtrapolationMode,
+        yearToDateIncome: Double,
+        currentMonth: Int,
     ): TaxCalculation {
         if (settings.status != SpainEmploymentStatus.AUTONOMO || grossIncome <= 0) {
             return TaxCalculation(
@@ -51,19 +60,65 @@ object TaxCalculator {
         }
         val cuota = cuotaMonthly * monthsInPeriod
 
-        val irpf = grossIncome * TaxRates.SPAIN_IRPF_RESERVE_PERCENT
+        // прогрессивный IRPF: считаем годовую нагрузку, затем берём долю
+        // относящуюся к доходу текущего периода
+        val irpfBreakdown = IrpfCalculator.calculate(
+            quarterIncome = grossIncome,
+            yearToDateIncome = yearToDateIncome,
+            currentMonth = currentMonth,
+            mode = extrapolationMode,
+            brackets = TaxRates.SPAIN_IRPF_BRACKETS,
+        )
+
+        val proportion = if (irpfBreakdown.annualIncomeUsed > 0) {
+            (grossIncome / irpfBreakdown.annualIncomeUsed).coerceIn(0.0, 1.0)
+        } else 0.0
+
+        val irpfForPeriod = irpfBreakdown.totalTax * proportion
+
+        val irpfSubSegments = irpfBreakdown.bracketAmounts.map { bracketAmount ->
+            val subAmount = bracketAmount.taxPaid * proportion
+            TaxSubSegment(
+                label = "${(bracketAmount.bracket.rate * 100).toInt()}% транш",
+                amount = subAmount,
+                percentOfGross = ratio(subAmount, grossIncome),
+            )
+        }
+
         val iva = if (settings.isIvaPayer) grossIncome * TaxRates.SPAIN_IVA_PERCENT else 0.0
 
-        val netIncome = (grossIncome - cuota - irpf - iva).coerceAtLeast(0.0)
+        val netIncome = (grossIncome - cuota - irpfForPeriod - iva).coerceAtLeast(0.0)
 
         val segments = buildList {
             add(TaxSegment("Чистый доход", netIncome, ratio(netIncome, grossIncome), TaxSegmentColor.NET_INCOME))
-            add(TaxSegment("IRPF резерв", irpf, ratio(irpf, grossIncome), TaxSegmentColor.IRPF))
+            add(
+                TaxSegment(
+                    label = "IRPF резерв",
+                    amount = irpfForPeriod,
+                    percentOfGross = ratio(irpfForPeriod, grossIncome),
+                    colorRole = TaxSegmentColor.IRPF,
+                    subSegments = irpfSubSegments,
+                )
+            )
             if (iva > 0) add(TaxSegment("IVA", iva, ratio(iva, grossIncome), TaxSegmentColor.IVA))
             add(TaxSegment("Cuota autónomo", cuota, ratio(cuota, grossIncome), TaxSegmentColor.CUOTA))
         }
 
         return TaxCalculation(grossIncome, segments, netIncome, currency)
+    }
+    fun calculateSpainProgressiveIrpf(
+        quarterIncome: Double,
+        yearToDateIncome: Double,
+        currentMonth: Int,
+        mode: IncomeExtrapolationMode,
+    ): IrpfBreakdown {
+        return IrpfCalculator.calculate(
+            quarterIncome = quarterIncome,
+            yearToDateIncome = yearToDateIncome,
+            currentMonth = currentMonth,
+            mode = mode,
+            brackets = TaxRates.SPAIN_IRPF_BRACKETS,
+        )
     }
 
     private fun calculateSerbia(
@@ -83,9 +138,7 @@ object TaxCalculator {
             )
         }
 
-        val paushal = if (settings.pausalniPorez) {
-            TaxRates.SERBIA_PAUSHAL_MONTHLY * monthsInPeriod
-        } else 0.0
+        val paushal = if (settings.pausalniPorez) TaxRates.SERBIA_PAUSHAL_MONTHLY * monthsInPeriod else 0.0
         val vat = if (settings.vatPayer) grossIncome * TaxRates.SERBIA_VAT_PERCENT else 0.0
 
         val netIncome = (grossIncome - paushal - vat).coerceAtLeast(0.0)
@@ -137,9 +190,7 @@ object TaxCalculator {
     private fun ratio(part: Double, whole: Double): Float =
         if (whole <= 0) 0f else (part / whole).toFloat().coerceIn(0f, 1f)
 
-    /**
-     * Ближайшие дедлайны в зависимости от профиля.
-     */
+
     fun getUpcomingDeadlines(
         taxProfile: TaxProfile,
         today: LocalDate,

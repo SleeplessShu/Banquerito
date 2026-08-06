@@ -36,7 +36,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute != Screen.Settings.route &&
+    val showBottomBar =
             currentRoute != Screen.AccountDetail.route
 
     Scaffold(
@@ -64,11 +64,7 @@ fun AppNavigation() {
                 )
             }
             composable(Screen.Operations.route) {
-                PlanningScreen(
-                    onSettingsClick = {
-                        navController.navigate(Screen.Settings.route)
-                    }
-                )
+                PlanningScreen()
             }
             composable(Screen.Taxes.route) {
                 TaxesScreen()

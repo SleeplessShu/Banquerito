@@ -63,7 +63,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanningScreen(
-    onSettingsClick: () -> Unit,
     planningViewModel: PlannedPaymentViewModel = koinViewModel(),
     accountsViewModel: AccountsViewModel = koinViewModel(),
 ) {
@@ -111,7 +110,7 @@ fun PlanningScreen(
                 .fillMaxSize()
         ) {
             item {
-                PlanningHeader(onSettingsClick = onSettingsClick)
+                PlanningHeader()
             }
 
             if (upcoming.isNotEmpty()) {
@@ -428,9 +427,7 @@ fun PlannedPaymentItem(
     }
 }
 @Composable
-fun PlanningHeader(
-    onSettingsClick: () -> Unit,
-) {
+fun PlanningHeader() {
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -448,11 +445,4 @@ fun PlanningHeader(
                 fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-            IconButton(onClick = onSettingsClick) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = stringResource(Res.string.planning_settings),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
             }}}

@@ -2,6 +2,7 @@ package com.sleeplessdog.banquerito.data.remote
 
 import banquerito.shared.generated.resources.Res
 import banquerito.shared.generated.resources.consultant_userdata
+import com.sleeplessdog.banquerito.data.interfaces.IClaudeApi
 import com.sleeplessdog.banquerito.domain.model.ChatMessage
 import com.sleeplessdog.banquerito.domain.model.ChatRole
 import io.ktor.client.HttpClient
@@ -71,7 +72,7 @@ data class ImageSource(
     val data: String,
 )
 
-class ClaudeApi {
+class ClaudeApi : IClaudeApi {
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -82,12 +83,12 @@ class ClaudeApi {
         }
     }
 
-    suspend fun call(
+    override suspend fun call(
         apiKey: String,
         context: String,
         history: List<ChatMessage>,
-        fileBase64: String? = null,
-        fileMimeType: String? = null,
+        fileBase64: String?,
+        fileMimeType: String?,
     ): String {
         val systemPrompt = """
             Ты финансовый ассистент приложения Banquerito для экспатов и фрилансеров.

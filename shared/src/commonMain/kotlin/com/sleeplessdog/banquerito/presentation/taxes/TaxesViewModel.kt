@@ -23,12 +23,14 @@ import kotlinx.datetime.todayIn
 
 data class TaxesUiState(
     val actualIncome: Double = 0.0,
-    val sliderIncome: Double? = null, // null = используем actualIncome
+    val sliderIncome: Double? = null,
     val currency: Currency = Currency.EUR,
     val calculation: TaxCalculation? = null,
     val deadlines: List<TaxDeadline> = emptyList(),
     val taxAccountIds: List<String> = emptyList(),
     val isLoading: Boolean = false,
+    val extrapolationMode: IncomeExtrapolationMode = IncomeExtrapolationMode.EXTRAPOLATE_CURRENT_QUARTER,
+    val irpfBreakdown: IrpfBreakdown? = null,
 ) {
     val effectiveIncome: Double get() = sliderIncome ?: actualIncome
 }
@@ -67,6 +69,7 @@ class TaxesViewModel(
 
                 val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 val deadlines = TaxCalculator.getUpcomingDeadlines(taxProfile, today)
+                val yearToDateIncome = calculateYearToDateIncome(relevantAccounts.map { it.id })
 
                 _uiState.update {
                     val effectiveIncome = it.sliderIncome ?: income
@@ -74,13 +77,19 @@ class TaxesViewModel(
                         actualIncome = income,
                         currency = userProfile.defaultCurrency,
                         calculation = TaxCalculator.calculate(
-                            effectiveIncome, userProfile.defaultCurrency, taxProfile
+                            grossIncome = effectiveIncome,
+                            currency = userProfile.defaultCurrency,
+                            taxProfile = taxProfile,
+                            extrapolationMode = it.extrapolationMode,
+                            yearToDateIncome = yearToDateIncome,
+                            currentMonth = today.monthNumber,
                         ),
                         deadlines = deadlines,
                         taxAccountIds = taxAccountIds,
                         isLoading = false,
                     )
                 }
+                recalculateIrpf()
             }
         }
     }
@@ -107,11 +116,24 @@ class TaxesViewModel(
     }
 
     fun updateSliderIncome(amount: Double) {
-        _uiState.update { state ->
-            state.copy(
-                sliderIncome = amount,
-                calculation = TaxCalculator.calculate(amount, state.currency, currentTaxProfile)
-            )
+        viewModelScope.launch {
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val yearToDateIncome = calculateYearToDateIncome(_uiState.value.taxAccountIds)
+
+            _uiState.update { state ->
+                state.copy(
+                    sliderIncome = amount,
+                    calculation = TaxCalculator.calculate(
+                        grossIncome = amount,
+                        currency = state.currency,
+                        taxProfile = currentTaxProfile,
+                        extrapolationMode = state.extrapolationMode,
+                        yearToDateIncome = yearToDateIncome,
+                        currentMonth = today.monthNumber,
+                    )
+                )
+            }
+            recalculateIrpf()
         }
     }
 
@@ -122,5 +144,65 @@ class TaxesViewModel(
                 calculation = TaxCalculator.calculate(state.actualIncome, state.currency, currentTaxProfile)
             )
         }
+    }
+
+    fun updateExtrapolationMode(mode: IncomeExtrapolationMode) {
+        viewModelScope.launch {
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val yearToDateIncome = calculateYearToDateIncome(_uiState.value.taxAccountIds)
+
+            _uiState.update { state ->
+                state.copy(
+                    extrapolationMode = mode,
+                    calculation = TaxCalculator.calculate(
+                        grossIncome = state.effectiveIncome,
+                        currency = state.currency,
+                        taxProfile = currentTaxProfile,
+                        extrapolationMode = mode,
+                        yearToDateIncome = yearToDateIncome,
+                        currentMonth = today.monthNumber,
+                    )
+                )
+            }
+            recalculateIrpf()
+        }
+    }
+
+    private fun recalculateIrpf() {
+        viewModelScope.launch {
+            val state = _uiState.value
+            val settings = currentTaxProfile.countryTaxSettings
+            if (settings !is CountryTaxSettings.Spain || settings.status != SpainEmploymentStatus.AUTONOMO) {
+                _uiState.update { it.copy(irpfBreakdown = null) }
+                return@launch
+            }
+
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val yearToDateIncome = calculateYearToDateIncome(state.taxAccountIds)
+
+            val breakdown = TaxCalculator.calculateSpainProgressiveIrpf(
+                quarterIncome = state.effectiveIncome,
+                yearToDateIncome = yearToDateIncome,
+                currentMonth = today.monthNumber,
+                mode = state.extrapolationMode,
+            )
+
+            _uiState.update { it.copy(irpfBreakdown = breakdown) }
+        }
+    }
+    private suspend fun calculateYearToDateIncome(accountIds: List<String>): Double {
+        if (accountIds.isEmpty()) return 0.0
+
+        var total = 0.0
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val yearStart = LocalDate(today.year, 1, 1)
+
+        for (accountId in accountIds) {
+            val transactions = accountRepository.getTransactionsByAccount(accountId).first()
+            transactions
+                .filter { it.type == TransactionType.INCOME && it.date >= yearStart }
+                .forEach { total += it.amount }
+        }
+        return total
     }
 }
