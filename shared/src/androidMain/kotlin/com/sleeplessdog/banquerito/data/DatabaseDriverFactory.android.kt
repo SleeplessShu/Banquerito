@@ -8,4 +8,5 @@ import com.sleeplessdog.banquerito.db.BanqueritoDB
 actual class DatabaseDriverFactory(private val context: Context) {
     actual fun createDriver(): SqlDriver =
         AndroidSqliteDriver(BanqueritoDB.Schema, context, "banquerito.db")
+
 }

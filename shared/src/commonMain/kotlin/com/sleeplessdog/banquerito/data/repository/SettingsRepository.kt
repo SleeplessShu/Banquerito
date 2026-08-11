@@ -67,6 +67,17 @@ class SettingsRepository(private val db: BanqueritoDB) : ISettingsRepository {
     override suspend fun toggleTaxAccount(accountId: String, include: Boolean) {
         if (include) addTaxAccount(accountId) else removeTaxAccount(accountId)
     }
+
+    override fun isFirstLaunch(): Flow<Boolean> =
+        db.banqueritoDBQueries.selectFirstLaunchDone()
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.IO)
+            .map { value -> value == 0L }
+
+    override suspend fun setFirstLaunchComplete() {
+        db.banqueritoDBQueries.insertDefaultAppSettings()
+        db.banqueritoDBQueries.setFirstLaunchDone()
+    }
 }
 
 private fun com.sleeplessdog.banquerito.db.UserProfile.toUserProfile() = UserProfile(
