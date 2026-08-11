@@ -38,4 +38,12 @@ class FakeSettingsRepository : ISettingsRepository {
     override suspend fun toggleTaxAccount(accountId: String, include: Boolean) {
         if (include) addTaxAccount(accountId) else removeTaxAccount(accountId)
     }
+
+    override fun isFirstLaunch(): Flow<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun setFirstLaunchComplete() {
+        TODO("Not yet implemented")
+    }
 }
