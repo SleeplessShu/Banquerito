@@ -22,4 +22,7 @@ interface ISettingsRepository {
     suspend fun removeTaxAccount(accountId: String)
 
     suspend fun toggleTaxAccount(accountId: String, include: Boolean)
+
+    fun isFirstLaunch(): Flow<Boolean>
+    suspend fun setFirstLaunchComplete()
 }

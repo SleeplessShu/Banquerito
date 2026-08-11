@@ -16,6 +16,7 @@ import com.sleeplessdog.banquerito.data.repository.SettingsRepository
 import com.sleeplessdog.banquerito.db.BanqueritoDB
 import com.sleeplessdog.banquerito.presentation.accounts.AccountsViewModel
 import com.sleeplessdog.banquerito.presentation.consultant.ConsultantViewModel
+import com.sleeplessdog.banquerito.presentation.onboarding.OnboardingViewModel
 import com.sleeplessdog.banquerito.presentation.planning.PlannedPaymentViewModel
 import com.sleeplessdog.banquerito.presentation.settings.SettingsViewModel
 import com.sleeplessdog.banquerito.presentation.taxes.TaxesViewModel
@@ -25,7 +26,11 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
-    single<BanqueritoDB> { BanqueritoDB(get<DatabaseDriverFactory>().createDriver()) }
+    single<BanqueritoDB> {
+        BanqueritoDB(get<DatabaseDriverFactory>().createDriver()).also { db ->
+            db.banqueritoDBQueries.insertDefaultAppSettings()
+        }
+    }
     single<IAccountRepository> { AccountRepository(get()) }
     single<ISettingsRepository> { SettingsRepository(get()) }
     single<IPlannedPaymentRepository> { PlannedPaymentRepository(get()) }
@@ -50,4 +55,5 @@ val appModule = module {
     viewModelOf(::PlannedPaymentViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::TaxesViewModel)
+    viewModelOf(::OnboardingViewModel)
 }
