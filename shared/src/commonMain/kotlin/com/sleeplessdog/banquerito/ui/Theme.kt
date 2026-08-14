@@ -5,9 +5,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
 
 object BanqueritoColors {
-    val Primary = Color(0xFF444F8E)
-    val OnPrimary = Color(0xFFFFF9E7)
-    val PrimaryContainer = Color(0xFF444F8E)
+    val Primary = Color(0xFF191919)
+    val OnPrimary = Color(0xFFF5F5F5)
+    val PrimaryContainer = Color(0xFF8F8F8F)
     val PrimarySelectedBackground = Color(0xFF54448E)
     val OnPrimaryContainer = Color(0xFFFFF9E7)
 
