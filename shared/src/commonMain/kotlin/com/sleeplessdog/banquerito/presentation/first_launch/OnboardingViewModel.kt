@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.sleeplessdog.banquerito.data.interfaces.ISettingsRepository
 import com.sleeplessdog.banquerito.domain.model.ArmeniaEmploymentStatus
 import com.sleeplessdog.banquerito.domain.model.Citizenship
+import com.sleeplessdog.banquerito.domain.model.Country
 import com.sleeplessdog.banquerito.domain.model.CountryOfResidence
 import com.sleeplessdog.banquerito.domain.model.CountryTaxSettings
 import com.sleeplessdog.banquerito.domain.model.Currency
+import com.sleeplessdog.banquerito.domain.model.OnboardingSteps
 import com.sleeplessdog.banquerito.domain.model.SerbiaEmploymentStatus
 import com.sleeplessdog.banquerito.domain.model.SpainAutonomoRegime
 import com.sleeplessdog.banquerito.domain.model.SpainDeclarationType
@@ -15,106 +17,13 @@ import com.sleeplessdog.banquerito.domain.model.SpainEmploymentStatus
 import com.sleeplessdog.banquerito.domain.model.TaxProfile
 import com.sleeplessdog.banquerito.domain.model.TaxResidency
 import com.sleeplessdog.banquerito.domain.model.UserProfile
+import com.sleeplessdog.banquerito.presentation.models.OnboardingUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-enum class OnboardingStep {
-    WELCOME,
-    COUNTRY_OF_RESIDENCE,
-    CITIZENSHIP,
-    DEFAULT_CURRENCY,
-    TAX_RESIDENCY,
-    ALMOST_DONE,
-    // Испания
-    SPAIN_STATUS,
-    SPAIN_REGIME,
-    SPAIN_START_YEAR,
-    SPAIN_IAE,
-    SPAIN_IVA_PAYER,
-    SPAIN_DECLARATION_TYPE,
-    SPAIN_VISA_EXPIRY,
-    SPAIN_TIE_EXPIRY,
-    SPAIN_REMIND_VISA,
-    SPAIN_REMIND_QUARTERLY,
-    SPAIN_REMIND_RENTA,
-    // Сербия
-    SERBIA_STATUS,
-    SERBIA_PAUSHALNI,
-    SERBIA_VAT,
-    SERBIA_VISA_EXPIRY,
-    SERBIA_REMIND_VISA,
-    // Армения
-    ARMENIA_STATUS,
-    ARMENIA_IT_ZONE,
-    ARMENIA_VAT,
-}
 
-data class OnboardingUiState(
-    val step: OnboardingStep = OnboardingStep.WELCOME,
-    val countryOfResidence: CountryOfResidence = CountryOfResidence.SPAIN,
-    val citizenship: Citizenship = Citizenship.OTHER,
-    val defaultCurrency: Currency = Currency.EUR,
-    val taxResidency: TaxResidency = TaxResidency.SPAIN,
-    val countryTaxSettings: CountryTaxSettings = CountryTaxSettings.Spain(),
-    val remindQuarterlyDays: Int = 7,
-    val remindRentaDays: Int = 14,
-    val isSaving: Boolean = false,
-    val isComplete: Boolean = false,
-) {
-    fun activeSteps(): List<OnboardingStep> {
-        val steps = mutableListOf(
-            OnboardingStep.WELCOME,
-            OnboardingStep.COUNTRY_OF_RESIDENCE,
-            OnboardingStep.CITIZENSHIP,
-            OnboardingStep.DEFAULT_CURRENCY,
-            OnboardingStep.TAX_RESIDENCY,
-            OnboardingStep.ALMOST_DONE,
-        )
-        when (val settings = countryTaxSettings) {
-            is CountryTaxSettings.Spain -> {
-                steps += OnboardingStep.SPAIN_STATUS
-                if (settings.status == SpainEmploymentStatus.AUTONOMO) {
-                    steps += OnboardingStep.SPAIN_REGIME
-                    steps += OnboardingStep.SPAIN_START_YEAR
-                    steps += OnboardingStep.SPAIN_IAE
-                    steps += OnboardingStep.SPAIN_IVA_PAYER
-                    steps += OnboardingStep.SPAIN_DECLARATION_TYPE
-                }
-                if (settings.status != SpainEmploymentStatus.EMPLOYEE) {
-                    steps += OnboardingStep.SPAIN_VISA_EXPIRY
-                    steps += OnboardingStep.SPAIN_TIE_EXPIRY
-                    steps += OnboardingStep.SPAIN_REMIND_VISA
-                }
-                if (settings.status == SpainEmploymentStatus.AUTONOMO) {
-                    steps += OnboardingStep.SPAIN_REMIND_QUARTERLY
-                    steps += OnboardingStep.SPAIN_REMIND_RENTA
-                }
-            }
-            is CountryTaxSettings.Serbia -> {
-                steps += OnboardingStep.SERBIA_STATUS
-                if (settings.status == SerbiaEmploymentStatus.SOLE_TRADER) {
-                    steps += OnboardingStep.SERBIA_PAUSHALNI
-                }
-                if (settings.status == SerbiaEmploymentStatus.SOLE_TRADER ||
-                    settings.status == SerbiaEmploymentStatus.DOO
-                ) {
-                    steps += OnboardingStep.SERBIA_VAT
-                }
-                steps += OnboardingStep.SERBIA_VISA_EXPIRY
-                steps += OnboardingStep.SERBIA_REMIND_VISA
-            }
-            is CountryTaxSettings.Armenia -> {
-                steps += OnboardingStep.ARMENIA_STATUS
-                steps += OnboardingStep.ARMENIA_IT_ZONE
-                steps += OnboardingStep.ARMENIA_VAT
-            }
-            is CountryTaxSettings.None -> {}
-        }
-        return steps
-    }
-}
 
 class OnboardingViewModel(
     private val repository: ISettingsRepository,
@@ -126,7 +35,9 @@ class OnboardingViewModel(
     fun next() {
         val state = _uiState.value
         val steps = state.activeSteps()
+        println("next() called, step=${state.step}, activeSteps=$steps")
         val nextStep = steps.getOrNull(steps.indexOf(state.step) + 1)
+        println("nextStep=$nextStep")
         if (nextStep != null) _uiState.update { it.copy(step = nextStep) }
         else finishOnboarding()
     }
@@ -140,25 +51,43 @@ class OnboardingViewModel(
     }
 
     // ── Базовый профиль ───────────────────────────────────────────────────────
+    fun selectCountryOfResidence(country: Country) {
+        _uiState.update {
+            it.copy(
+                selectedResidenceCountry = country,
+                countryOfResidence = country.asResidence ?: CountryOfResidence.OTHER,
+            )
+        }
+    }
 
-    fun selectCountryOfResidence(value: CountryOfResidence) =
-        _uiState.update { it.copy(countryOfResidence = value) }
+    fun selectCitizenship(country: Country) {
+        _uiState.update {
+            it.copy(
+                selectedCitizenshipCountry = country,
+                citizenship = country.asCitizenship ?: Citizenship.OTHER,
+            )
+        }
+    }
 
-    fun selectCitizenship(value: Citizenship) =
-        _uiState.update { it.copy(citizenship = value) }
-
-    fun selectCurrency(value: Currency) =
-        _uiState.update { it.copy(defaultCurrency = value) }
-
-    fun selectTaxResidency(value: TaxResidency) {
-        val settings = when (value) {
+    fun selectTaxResidency(country: Country) {
+        val taxResidency = country.asTaxResidency ?: TaxResidency.OTHER
+        val settings = when (taxResidency) {
             TaxResidency.SPAIN -> CountryTaxSettings.Spain()
             TaxResidency.SERBIA -> CountryTaxSettings.Serbia()
             TaxResidency.ARMENIA -> CountryTaxSettings.Armenia()
             else -> CountryTaxSettings.None
         }
-        _uiState.update { it.copy(taxResidency = value, countryTaxSettings = settings) }
+        _uiState.update {
+            it.copy(
+                selectedTaxResidencyCountry = country,
+                taxResidency = taxResidency,
+                countryTaxSettings = settings,
+            )
+        }
     }
+
+    fun selectCurrency(value: Currency) =
+        _uiState.update { it.copy(defaultCurrency = value) }
 
     // ── Испания ───────────────────────────────────────────────────────────────
 
@@ -167,7 +96,7 @@ class OnboardingViewModel(
         // Если текущий шаг выпал из activeSteps — вернуться к выбору статуса
         val newState = _uiState.value
         if (newState.step !in newState.activeSteps()) {
-            _uiState.update { it.copy(step = OnboardingStep.SPAIN_STATUS) }
+            _uiState.update { it.copy(step = OnboardingSteps.SPAIN_STATUS) }
         }
     }
 
@@ -189,13 +118,19 @@ class OnboardingViewModel(
         }
     }
 
+    fun toggleVisaReminder(enabled: Boolean) =
+        _uiState.update { it.copy(visaReminderEnabled = enabled) }
+
+    fun toggleQuarterlyReminder(enabled: Boolean) =
+        _uiState.update { it.copy(quarterlyReminderEnabled = enabled) }
+
     // ── Сербия ────────────────────────────────────────────────────────────────
 
     fun updateSerbiaStatus(value: SerbiaEmploymentStatus) {
         updateSerbia { copy(status = value) }
         val newState = _uiState.value
         if (newState.step !in newState.activeSteps()) {
-            _uiState.update { it.copy(step = OnboardingStep.SERBIA_STATUS) }
+            _uiState.update { it.copy(step = OnboardingSteps.SERBIA_STATUS) }
         }
     }
 
@@ -232,14 +167,14 @@ class OnboardingViewModel(
             val state = _uiState.value
             repository.upsertUserProfile(
                 UserProfile(
-                    countryOfResidence = state.countryOfResidence,
-                    citizenship = state.citizenship,
+                    countryOfResidence = state.countryOfResidence ?: CountryOfResidence.SPAIN,
+                    citizenship = state.citizenship ?: Citizenship.RUSSIA,
                     defaultCurrency = state.defaultCurrency,
                 )
             )
             repository.upsertTaxProfile(
                 TaxProfile(
-                    taxResidency = state.taxResidency,
+                    taxResidency = state.taxResidency ?: TaxResidency.SPAIN,
                     countryTaxSettings = state.countryTaxSettings,
                     remindQuarterlyDays = state.remindQuarterlyDays,
                     remindRentaDays = state.remindRentaDays,
