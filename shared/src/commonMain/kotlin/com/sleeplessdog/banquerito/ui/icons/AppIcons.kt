@@ -20,4 +20,10 @@ object AppIcons {
     @Composable fun bank(): Painter = painterResource(Res.drawable.ic_bank)
     @Composable fun agent(): Painter = painterResource(Res.drawable.ic_agent)
     @Composable fun settings(): Painter = painterResource(Res.drawable.ic_settings)
+    @Composable fun arrowBack(): Painter = painterResource(Res.drawable.icon_arrow_leg_left)
+    @Composable fun info(): Painter = painterResource(Res.drawable.icon_info)
+    @Composable fun backspace(): Painter = painterResource(Res.drawable.icon_delete_large)
+    @Composable fun done(): Painter = painterResource(Res.drawable.icon_send)
+    @Composable fun minus(): Painter = painterResource(Res.drawable.icon_minus_small)
+    @Composable fun plus(): Painter  = painterResource(Res.drawable.icon_plus_small)
 }

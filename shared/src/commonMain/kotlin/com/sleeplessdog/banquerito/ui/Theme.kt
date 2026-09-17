@@ -11,12 +11,12 @@ object BanqueritoColors {
     val PrimarySelectedBackground = Color(0xFF54448E)
     val OnPrimaryContainer = Color(0xFFFFF9E7)
 
-    val Background = Color(0xFF131313)
+    val Background = Color(0xFF1A1A1A)
     val OnBackground = Color(0xFFFFF9E7)
 
-    val Surface = Color(0xFF1A1A1A)
+    val Surface = Color(0xFF191919)
     val OnSurface = Color(0xFFFFF9E7)
-    val SurfaceVariant = Color(0xFF444F8E)
+    val SurfaceVariant = Color(0xFF181818)
     val OnSurfaceVariant = Color(0xFFFFF9E7)
 
     val Error = Color(0xFF85683C)

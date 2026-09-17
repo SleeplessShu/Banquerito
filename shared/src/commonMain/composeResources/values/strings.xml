@@ -23,8 +23,8 @@
     <string name="settings_iva_payer">Плательщик IVA</string>
     <string name="settings_declaration_type">Тип декларации</string>
     <string name="settings_visa_documents">Виза и документы</string>
-    <string name="settings_visa_expiry">Дата окончания визы (дд.мм.гггг)</string>
-    <string name="settings_tie_expiry">Дата окончания TIE (дд.мм.гггг)</string>
+    <string name="settings_visa_expiry">Дата окончания визы</string>
+    <string name="settings_tie_expiry">Дата окончания TIE</string>
     <string name="settings_remind_visa_days">Напомнить о визе за %1$d дней</string>
     <string name="settings_partner_data">Данные партнёра</string>
     <string name="settings_partner_visa_expiry">Дата окончания визы партнёра</string>
@@ -150,4 +150,261 @@
     <string name="action_select">Выбрать</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_edit">Редактировать</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_yes">Да</string>
+    <string name="action_no">Нет</string>
+    <string name="action_ok">ОК</string>
+    <!-- Кнопки -->
+    <string name="onboarding_btn_next">Далее</string>
+    <string name="onboarding_btn_lets_go">Поехали</string>
+    <string name="onboarding_btn_done">Готово</string>
+
+    <!-- Welcome -->
+    <string name="onboarding_welcome_title">Добро пожаловать в Banquerito</string>
+    <string name="onboarding_welcome_subtitle">Давайте настроим приложение под вашу ситуацию. Это займёт меньше минуты.</string>
+
+    <!-- Almost Done -->
+    <string name="onboarding_almost_done_title">Осталось совсем чуть-чуть...</string>
+    <string name="onboarding_almost_done_subtitle">Уточним несколько деталей о вашем налоговом статусе: это нужно для точных расчётов и напоминаний.</string>
+
+    <!-- Общие шаги -->
+    <string name="onboarding_country_title">Страна проживания</string>
+    <string name="onboarding_country_subtitle">Где вы сейчас живёте?</string>
+
+    <string name="onboarding_citizenship_title">Гражданство</string>
+    <string name="onboarding_citizenship_subtitle">Гражданином какой страны вы являетесь?</string>
+
+    <string name="onboarding_currency_title">Валюта по умолчанию</string>
+    <string name="onboarding_currency_subtitle">В какой валюте вы ведёте основные расчёты?</string>
+
+    <string name="onboarding_tax_residency_title">Налоговое резидентство</string>
+    <string name="onboarding_tax_residency_subtitle">В какой стране вы являетесь налоговым резидентом?</string>
+
+    <!-- Общие переиспользуемые -->
+    <string name="onboarding_employment_status_subtitle">Ваш тип занятости</string>
+    <string name="onboarding_visa_expiry_title">Дата окончания визы</string>
+    <string name="onboarding_visa_expiry_subtitle">Мы напомним заранее о продлении (дд.мм.гггг)</string>
+    <string name="onboarding_visa_expiry_placeholder">01.01.2026</string>
+    <string name="onboarding_remind_visa_title">Напоминание о визе\nза 180 дней</string>
+    <string name="onboarding_remind_visa_subtitle">За сколько дней до окончания напомнить?</string>
+    <string name="onboarding_remind_days">%d дней</string>
+    <string name="onboarding_vat_subtitle">Включите, если оборот превысил порог или вы добровольно зарегистрированы</string>
+    <string name="onboarding_optional_hint">Необязательно — можно заполнить позже в Настройках</string>
+    <string name="onboarding_country_search">Поиск страны</string>
+
+
+    <!-- Испания -->
+    <string name="onboarding_spain_status_title">Статус в Испании</string>
+    <string name="onboarding_spain_status_subtitle">Ваш тип занятости или резидентства</string>
+
+    <string name="onboarding_spain_regime_title">Режим Autónomo</string>
+    <string name="onboarding_spain_regime_subtitle">Начали недавно? Возможна Tarifa Plana</string>
+
+    <string name="onboarding_spain_start_year_title">Год регистрации Autónomo</string>
+    <string name="onboarding_spain_start_year_subtitle">Нужно для расчёта Tarifa Plana</string>
+    <string name="onboarding_spain_start_year_placeholder">Например: 2023</string>
+
+    <string name="onboarding_spain_iae_title">IAE (Epígrafe)</string>
+    <string name="onboarding_spain_iae_subtitle">Код вида деятельности в испанском реестре</string>
+    <string name="onboarding_spain_iae_placeholder">Например: 763</string>
+
+    <string name="onboarding_spain_iva_title">Плательщик IVA</string>
+    <string name="onboarding_spain_iva_subtitle">Включите, если вы обязаны начислять и платить НДС</string>
+    <string name="onboarding_spain_iva_label">Я плачу IVA</string>
+
+    <string name="onboarding_spain_declaration_title">Тип декларации</string>
+    <string name="onboarding_spain_declaration_subtitle">Modelo 130 — для общего режима,\n131 — для модульного</string>
+
+    <string name="onboarding_spain_tie_expiry_title">Дата окончания TIE</string>
+    <string name="onboarding_spain_tie_expiry_subtitle">Карточка иностранного резидента</string>
+
+    <string name="onboarding_spain_remind_visa_title">Напоминание о визе / TIE</string>
+
+    <string name="onboarding_spain_remind_quarterly_title">Напоминание о квартальной декларации за 30 дней</string>
+    <string name="onboarding_spain_remind_quarterly_subtitle">За сколько дней до квартального платежа напомнить?</string>
+
+    <string name="onboarding_spain_remind_renta_title">Напоминание о Renta</string>
+    <string name="onboarding_spain_remind_renta_subtitle">За сколько дней до Renta (апрель–июнь) напомнить?</string>
+    <string name="onboarding_reminders_title">Напоминания</string>
+    <string name="onboarding_reminders_subtitle">Мы напомним о важных датах заранее</string>
+    <string name="onboarding_remind_before">Напомнить за</string>
+    <!-- Сербия -->
+    <string name="onboarding_serbia_status_title">Статус в Сербии</string>
+
+    <string name="onboarding_serbia_paushalni_title">Паушальный налог</string>
+    <string name="onboarding_serbia_paushalni_subtitle">Фиксированная ставка для preduzetnik — упрощённый режим</string>
+    <string name="onboarding_serbia_paushalni_label">Паушалац (paušalac)</string>
+
+    <string name="onboarding_serbia_vat_title">Плательщик PDV (НДС)</string>
+    <string name="onboarding_serbia_vat_label">Я плачу PDV</string>
+
+    <!-- Армения -->
+    <string name="onboarding_armenia_status_title">Статус в Армении</string>
+
+    <string name="onboarding_armenia_it_zone_title">IT-зона</string>
+    <string name="onboarding_armenia_it_zone_subtitle">Льготный режим налогообложения для IT-компаний и ИП</string>
+    <string name="onboarding_armenia_it_zone_label">Я резидент IT-зоны</string>
+
+    <string name="onboarding_armenia_vat_title">Плательщик НДС</string>
+    <string name="onboarding_armenia_vat_label">Я плачу НДС</string>
+
+    <string name="onboarding_tax_residency_info">Налоговое резидентство — это страна, в которой вы платите подоходный налог. Обычно это страна, где вы провели более 183 дней в году. Не путайте с гражданством или страной проживания.</string>
+    <string name="onboarding_spain_status_info">Autónomo — самозанятый предприниматель. Digital Nomad Visa — специальная виза для удалённых работников. Non-resident — если вы работаете в Испании, но не являетесь налоговым резидентом.</string>
+    <string name="onboarding_spain_regime_info">Tarifa Plana — льготная ставка взносов для новых autónomos в первые годы работы.\nRégimen General — стандартный режим без льгот.</string>
+    <string name="onboarding_spain_start_year_info">Год первой регистрации как autónomo используется для расчёта срока действия Tarifa Plana и других льгот для новых предпринимателей.</string>
+    <string name="onboarding_spain_iae_info">IAE (Impuesto sobre Actividades Económicas) — налог на экономическую деятельность.\nEpígrafe — код вашего вида деятельности в испанском реестре. Например, 763 — программирование.</string>
+    <string name="onboarding_spain_iva_info">IVA (Impuesto sobre el Valor Añadido) — испанский НДС. Большинство autónomos обязаны начислять IVA на свои услуги и сдавать декларации modelo 303 ежеквартально.</string>
+    <string name="onboarding_spain_declaration_info">Modelo 130 — ежеквартальный авансовый платёж IRPF для autónomos на общем режиме. \nModelo 131 — для autónomos на модульном режиме (módulos).</string>
+    <string name="onboarding_spain_tie_info">TIE (Tarjeta de Identidad de Extranjero) — карточка иностранного резидента. Выдаётся после получения ВНЖ и требует регулярного продления.</string>
+    <string name="onboarding_serbia_paushalni_info">Паушальное налогообложение (paušalno oporezivanje) — упрощённый режим для preduzetnik с фиксированным налогом, рассчитываемым налоговой. Освобождает от ведения полной бухгалтерии.</string>
+    <string name="onboarding_armenia_it_zone_info">IT-зона Армении предоставляет льготное налогообложение для IT-компаний и ИП: сниженные ставки подоходного налога и НДС. Требует аккредитации в Министерстве высокотехнологичной промышленности.</string>
+    <string name="onboarding_currency_search">Поиск валюты</string>
+
+
+    <!-- Европа -->
+    <string name="country_es">Испания</string>
+    <string name="country_rs">Сербия</string>
+    <string name="country_am">Армения</string>
+    <string name="country_ru">Россия</string>
+    <string name="country_ua">Украина</string>
+    <string name="country_by">Беларусь</string>
+    <string name="country_de">Германия</string>
+    <string name="country_fr">Франция</string>
+    <string name="country_it">Италия</string>
+    <string name="country_gb">Великобритания</string>
+    <string name="country_pl">Польша</string>
+    <string name="country_cz">Чехия</string>
+    <string name="country_sk">Словакия</string>
+    <string name="country_hu">Венгрия</string>
+    <string name="country_ro">Румыния</string>
+    <string name="country_bg">Болгария</string>
+    <string name="country_hr">Хорватия</string>
+    <string name="country_si">Словения</string>
+    <string name="country_ba">Босния и Герцеговина</string>
+    <string name="country_me">Черногория</string>
+    <string name="country_mk">Северная Македония</string>
+    <string name="country_al">Албания</string>
+    <string name="country_gr">Греция</string>
+    <string name="country_tr">Турция</string>
+    <string name="country_pt">Португалия</string>
+    <string name="country_nl">Нидерланды</string>
+    <string name="country_be">Бельгия</string>
+    <string name="country_lu">Люксембург</string>
+    <string name="country_ch">Швейцария</string>
+    <string name="country_at">Австрия</string>
+    <string name="country_dk">Дания</string>
+    <string name="country_se">Швеция</string>
+    <string name="country_no">Норвегия</string>
+    <string name="country_fi">Финляндия</string>
+    <string name="country_is">Исландия</string>
+    <string name="country_ie">Ирландия</string>
+    <string name="country_lt">Литва</string>
+    <string name="country_lv">Латвия</string>
+    <string name="country_ee">Эстония</string>
+    <string name="country_md">Молдова</string>
+    <string name="country_ge">Грузия</string>
+    <string name="country_az">Азербайджан</string>
+    <string name="country_cy">Кипр</string>
+    <string name="country_mt">Мальта</string>
+
+    <!-- Центральная Азия -->
+    <string name="country_kz">Казахстан</string>
+    <string name="country_uz">Узбекистан</string>
+    <string name="country_tm">Туркменистан</string>
+    <string name="country_kg">Кыргызстан</string>
+    <string name="country_tj">Таджикистан</string>
+
+    <!-- Америка -->
+    <string name="country_us">США</string>
+    <string name="country_ca">Канада</string>
+    <string name="country_mx">Мексика</string>
+    <string name="country_br">Бразилия</string>
+    <string name="country_ar">Аргентина</string>
+    <string name="country_cl">Чили</string>
+    <string name="country_co">Колумбия</string>
+    <string name="country_pe">Перу</string>
+    <string name="country_ve">Венесуэла</string>
+    <string name="country_ec">Эквадор</string>
+
+    <!-- Азия -->
+    <string name="country_cn">Китай</string>
+    <string name="country_jp">Япония</string>
+    <string name="country_kr">Южная Корея</string>
+    <string name="country_in">Индия</string>
+    <string name="country_th">Таиланд</string>
+    <string name="country_vn">Вьетнам</string>
+    <string name="country_id">Индонезия</string>
+    <string name="country_ph">Филиппины</string>
+    <string name="country_my">Малайзия</string>
+    <string name="country_sg">Сингапур</string>
+    <string name="country_mn">Монголия</string>
+    <string name="country_np">Непал</string>
+    <string name="country_lk">Шри-Ланка</string>
+
+    <!-- Океания -->
+    <string name="country_au">Австралия</string>
+    <string name="country_nz">Новая Зеландия</string>
+
+    <!-- Прочее -->
+    <string name="country_other">Другое</string>
+
+    <!-- Европа -->
+    <string name="currency_eur">Евро</string>
+    <string name="currency_gbp">Британский фунт</string>
+    <string name="currency_chf">Швейцарский франк</string>
+    <string name="currency_pln">Польский злотый</string>
+    <string name="currency_czk">Чешская крона</string>
+    <string name="currency_huf">Венгерский форинт</string>
+    <string name="currency_ron">Румынский лей</string>
+    <string name="currency_bgn">Болгарский лев</string>
+    <string name="currency_try">Турецкая лира</string>
+    <string name="currency_dkk">Датская крона</string>
+    <string name="currency_sek">Шведская крона</string>
+    <string name="currency_nok">Норвежская крона</string>
+    <string name="currency_isk">Исландская крона</string>
+    <string name="currency_mdl">Молдавский лей</string>
+    <string name="currency_gel">Грузинский лари</string>
+    <string name="currency_azn">Азербайджанский манат</string>
+    <string name="currency_mkd">Македонский денар</string>
+    <string name="currency_all">Албанский лек</string>
+    <string name="currency_bam">Боснийская марка</string>
+    <string name="currency_rsd">Сербский динар</string>
+    <!-- СНГ -->
+    <string name="currency_rub">Российский рубль</string>
+    <string name="currency_uah">Украинская гривна</string>
+    <string name="currency_byn">Белорусский рубль</string>
+    <string name="currency_amd">Армянский драм</string>
+    <string name="currency_kzt">Казахстанский тенге</string>
+    <string name="currency_uzs">Узбекский сум</string>
+    <string name="currency_tmt">Туркменский манат</string>
+    <string name="currency_kgs">Киргизский сом</string>
+    <string name="currency_tjs">Таджикский сомони</string>
+    <!-- Америка -->
+    <string name="currency_usd">Доллар США</string>
+    <string name="currency_cad">Канадский доллар</string>
+    <string name="currency_mxn">Мексиканское песо</string>
+    <string name="currency_brl">Бразильский реал</string>
+    <string name="currency_ars">Аргентинское песо</string>
+    <string name="currency_clp">Чилийское песо</string>
+    <string name="currency_cop">Колумбийское песо</string>
+    <string name="currency_pen">Перуанский соль</string>
+    <string name="currency_ves">Венесуэльский боливар</string>
+    <!-- Азия -->
+    <string name="currency_cny">Китайский юань</string>
+    <string name="currency_jpy">Японская иена</string>
+    <string name="currency_krw">Южнокорейская вона</string>
+    <string name="currency_inr">Индийская рупия</string>
+    <string name="currency_thb">Тайский бат</string>
+    <string name="currency_vnd">Вьетнамский донг</string>
+    <string name="currency_idr">Индонезийская рупия</string>
+    <string name="currency_php">Филиппинское песо</string>
+    <string name="currency_myr">Малайзийский ринггит</string>
+    <string name="currency_sgd">Сингапурский доллар</string>
+    <string name="currency_mnt">Монгольский тугрик</string>
+    <string name="currency_npr">Непальская рупия</string>
+    <string name="currency_lkr">Шри-ланкийская рупия</string>
+    <!-- Океания -->
+    <string name="currency_aud">Австралийский доллар</string>
+    <string name="currency_nzd">Новозеландский доллар</string>
+
 </resources>
